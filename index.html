@@ -575,21 +575,20 @@ window.resetPassword = async function() {
   }
 };
 
-firebase.auth().onAuthStateChanged( async (user) => {
+firebase.auth().onAuthStateChanged(function(user) {
   document.getElementById('loadingOverlay').style.display='none';
   if(user) {
     currentUser = user;
     document.getElementById('authScreen').classList.add('hidden');
     document.getElementById('mainApp').classList.remove('hidden');
     document.getElementById('hdrUser').textContent = user.displayName || user.email;
-
-    const uSnap = await db.collection('users').doc(user.uid).get();
-    if(uSnap.exists()) {
-      userProfile = uSnap.data();
-      if(userProfile.hcp) document.getElementById('hcpIn').value = userProfile.hcp;
-    }
-
-    setTimeout(()=>{initHoleMap();loadOSMData();}, 300);
+    db.collection('users').doc(user.uid).get().then(function(uSnap) {
+      if(uSnap.exists) {
+        userProfile = uSnap.data();
+        if(userProfile && userProfile.hcp) document.getElementById('hcpIn').value = userProfile.hcp;
+      }
+    }).catch(function(e){ console.warn('User data:', e); });
+    setTimeout(function(){initHoleMap();loadOSMData();}, 300);
     loadSocialData();
   } else {
     currentUser = null;
