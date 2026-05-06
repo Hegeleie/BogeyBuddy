@@ -589,7 +589,7 @@ firebase.auth().onAuthStateChanged(function(user) {
       }
     }).catch(function(e){ console.warn('User data:', e); });
     setTimeout(function(){initHoleMap();loadOSMData();}, 300);
-    loadSocialData();
+    setTimeout(function(){try{loadSocialData();}catch(e){console.warn('Social:',e);}}, 500);
   } else {
     currentUser = null;
     document.getElementById('mainApp').classList.add('hidden');
@@ -653,14 +653,14 @@ async function loadLeaderboard() {
 async function loadFriends() {
   if(!currentUser) return;
   const mySnap = await db.collection('users').doc(currentUser.uid).get();
-  if(!mySnap.exists()) return;
+  if(!mySnap.exists) return;
   const friends = mySnap.data().friends || [];
   const fl = document.getElementById('friendsList');
   if(!friends.length){fl.innerHTML='<div style="font-size:12px;color:#bbb;">Noch keine Freunde hinzugefügt</div>';return;}
 
   const items = await Promise.all(friends.map(async fid=>{
     const fSnap = await db.collection('users').doc(fid).get();
-    if(!fSnap.exists()) return null;
+    if(!fSnap.exists) return null;
     const f = fSnap.data();
     const initials = (f.name||'?').split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
     return `<div class="user-card">
@@ -677,7 +677,7 @@ async function loadFriends() {
 async function loadFeed() {
   if(!currentUser) return;
   const mySnap = await db.collection('users').doc(currentUser.uid).get();
-  const friends = mySnap.exists() ? (mySnap.data().friends||[]) : [];
+  const friends = mySnap.exists ? (mySnap.data().friends||[]) : [];
   const uids = [currentUser.uid, ...friends];
 
   const feed = document.getElementById('feedRounds');
