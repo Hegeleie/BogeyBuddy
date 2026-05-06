@@ -14,7 +14,7 @@
 html,body{height:100%;background:#0d1f08;font-family:'DM Sans',sans-serif;}
 
 /* AUTH SCREEN */
-.auth-screen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;background:#0d1f08;}
+.auth-screen{position:fixed;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;background:#0d1f08;z-index:99999;overflow-y:auto;}
 .auth-logo{font-size:42px;font-weight:700;color:#fff;letter-spacing:-1px;margin-bottom:4px;}
 .auth-logo span{color:#7ac455;}
 .auth-tagline{font-size:14px;color:rgba(255,255,255,0.4);margin-bottom:40px;letter-spacing:1px;text-transform:uppercase;}
@@ -223,7 +223,9 @@ html,body{height:100%;background:#0d1f08;font-family:'DM Sans',sans-serif;}
 
 .logout-btn{display:block;width:calc(100% - 28px);margin:14px;padding:12px;background:#fff;color:#c0392b;border:1.5px solid #f5b8b8;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;text-align:center;}
 
-.loading-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,0.9);display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:12px;}
+.loading-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:#0d1f08;display:flex;align-items:center;justify-content:center;z-index:99999;flex-direction:column;gap:12px;}
+.loading-spinner{border-color:rgba(255,255,255,0.2);border-top-color:#7ac455;}
+.loading-txt{color:rgba(255,255,255,0.6);}
 .loading-spinner{width:32px;height:32px;border:3px solid #eee;border-top-color:#1e4d0a;border-radius:50%;animation:spin 0.8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-txt{font-size:14px;color:#888;}
@@ -423,7 +425,23 @@ html,body{height:100%;background:#0d1f08;font-family:'DM Sans',sans-serif;}
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script type="module">
+<script>
+// Shim: allows onclick="doLogin()" etc to work with ES modules
+const _pending = {};
+['doLogin','doRegister','doLogout','switchAuthTab','showTab','setTee','go','chg',
+ 'trackShot','undoShot','setClub','saveRound','resetRound','addFriend','deleteRound',
+ 'deleteAccount','setLayer','setHoleLayer'].forEach(fn => {
+  window[fn] = (...args) => {
+    if(window['__'+fn]) return window['__'+fn](...args);
+    console.warn(fn+' not ready yet');
+  };
+});
+window.__registerFn = (name, fn) => {
+  window['__'+name] = fn;
+  window[name] = fn;
+};
+</script>
+<script type="module" id="mainModule">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, query, orderBy, limit, where, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
@@ -500,20 +518,23 @@ let gpsMap=null, gpsLayer=null, gpsMapInited=false;
 let holeMap=null, holeLayer=null, holeMapInited=false;
 let distRings=[], greenMarkers=[], fairwayPolygons=[], teeMarkers=[], shotMapMarkers=[];
 let osmData={greens:[],tees:[],fairways:[]}, osmLoaded=false;
-let shots = Array.from({ length: 18 }, () => []); // [{lat,lon,dist}]
+let shots=Array.from({length:18},()=[]); // [{lat,lon,dist}]
 let currentUser=null, userProfile=null;
 
 // ═══════════════════════════════════════════════════════════
 // AUTH
 // ═══════════════════════════════════════════════════════════
-window.switchAuthTab = (t) => {
+reg('switchAuthTab', (t) => {
   document.querySelectorAll('.auth-tab').forEach((el,i)=>el.classList.toggle('on',['login','register'][i]===t));
   document.getElementById('authLoginForm').style.display = t==='login'?'block':'none';
   document.getElementById('authRegisterForm').style.display = t==='register'?'block':'none';
   document.getElementById('authError').textContent='';
 };
 
-window.doLogin = async () => {
+// Register all functions for onclick compatibility
+const reg = window.__registerFn;
+
+reg('doLogin', async () => {
   const email=document.getElementById('loginEmail').value;
   const pw=document.getElementById('loginPw').value;
   try {
@@ -521,9 +542,9 @@ window.doLogin = async () => {
   } catch(e) {
     document.getElementById('authError').textContent = 'Falsche E-Mail oder Passwort';
   }
-};
+});
 
-window.doRegister = async () => {
+reg('doRegister' = async () => {
   const name=document.getElementById('regName').value.trim();
   const email=document.getElementById('regEmail').value;
   const pw=document.getElementById('regPw').value;
@@ -538,11 +559,11 @@ window.doRegister = async () => {
   } catch(e) {
     document.getElementById('authError').textContent = e.code==='auth/email-already-in-use'?'E-Mail bereits vergeben':'Fehler: '+e.message;
   }
-};
+});
 
-window.doLogout = async () => {
+reg('doLogout' = async () => {
   await signOut(auth);
-};
+});
 
 onAuthStateChanged(auth, async (user) => {
   document.getElementById('loadingOverlay').style.display='none';
@@ -570,7 +591,7 @@ onAuthStateChanged(auth, async (user) => {
 // ═══════════════════════════════════════════════════════════
 // SOCIAL / FIREBASE
 // ═══════════════════════════════════════════════════════════
-window.addFriend = async () => {
+reg('addFriend', async () => {
   const email = document.getElementById('friendEmail').value.trim();
   if(!email || !currentUser) return;
   try {
@@ -679,7 +700,7 @@ async function loadFeed() {
   }).join('');
 }
 
-window.deleteRound = async (id) => {
+reg('deleteRound', async (id) => {
   if(!confirm('Runde löschen?')) return;
   const {deleteDoc} = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
   await deleteDoc(doc(db,'rounds',id));
@@ -734,21 +755,23 @@ function updateHoleMap() {
     if(fw?.coords?.length>2){const p=L.polygon(fw.coords.map(c=>[c.lat,c.lon]),{color:'#4a9a2a',fillColor:'#4a9a2a',fillOpacity:0.25,weight:1.5}).addTo(holeMap);fairwayPolygons.push(p);}
   }
 
-  // Distanzringe
+  // Distanzringe – schmale Ellipse entlang Fairwayrichtung
   const gLL=L.latLng(green[0],green[1]);
-  [{d:100,c:'#ef4444'},{d:150,c:'#f97316'},{d:200,c:'#3b82f6'},{d:250,c:'#8b5cf6'}].forEach(r=>{
-    const circle=L.circle(gLL,{radius:r.d,color:r.c,fillColor:r.c,fillOpacity:0.03,weight:1.5,dashArray:'5,5'}).addTo(holeMap);
-    distRings.push(circle);
-    const lp=L.latLng(green[0],green[1]-(r.d/111320));
-    const lbl=L.marker(lp,{icon:L.divIcon({html:`<div style="background:${r.c};color:#fff;font-size:10px;font-weight:700;padding:2px 5px;border-radius:4px;opacity:0.9">${r.d}m</div>`,className:'',iconAnchor:[20,8]}),interactive:false}).addTo(holeMap);
+  const latM=1/111320;
+  const lonM=1/(111320*Math.cos(green[0]*Math.PI/180));
+  [{d:100,c:'#ef4444'},{d:150,c:'#f97316'},{d:200,c:'#3b82f6'}].forEach(r=>{
+    const pts=[];
+    for(let a=0;a<=360;a+=6){
+      const rad=a*Math.PI/180;
+      // Längsachse Süd-Nord (zum Abschlag), Querachse 40% schmaler
+      pts.push([green[0]+Math.cos(rad)*r.d*latM, green[1]+Math.sin(rad)*r.d*0.4*lonM]);
+    }
+    const poly=L.polygon(pts,{color:r.c,fillColor:r.c,fillOpacity:0.04,weight:1.5,dashArray:'4,5'}).addTo(holeMap);
+    distRings.push(poly);
+    const lp=L.latLng(green[0],green[1]-(r.d*0.4*lonM)-(20*lonM));
+    const lbl=L.marker(lp,{icon:L.divIcon({html:`<div style="background:${r.c};color:#fff;font-size:10px;font-weight:700;padding:2px 5px;border-radius:4px;opacity:0.9;white-space:nowrap">${r.d}m</div>`,className:'',iconAnchor:[22,8]}),interactive:false}).addTo(holeMap);
     distRings.push(lbl);
   });
-
-  // Meine Position
-  if(myPos){
-    const mm=L.marker(myPos,{icon:myPosIcon()}).addTo(holeMap);
-    greenMarkers.push(mm);
-  }
 
   // Shot-Marker
   const shotPositions=shots[cur];
@@ -768,7 +791,7 @@ function updateHoleMap() {
   updateAutoDistance();
 }
 
-window.setHoleLayer = (t)=>{
+reg('setHoleLayer', (t)=>{
   ['hlSat','hlMap','hlHyb'].forEach(id=>document.getElementById(id).classList.remove('on'));
   document.getElementById(t==='sat'?'hlSat':t==='map'?'hlMap':'hlHyb').classList.add('on');
   if(holeLayer) holeMap.removeLayer(holeLayer);
@@ -827,7 +850,7 @@ function initGpsMap() {
   }
 }
 
-window.setLayer=(t)=>{
+reg('setLayer',(t)=>{
   ['lbMap','lbSat','lbHyb'].forEach(id=>document.getElementById(id).classList.remove('on'));
   document.getElementById(t==='map'?'lbMap':t==='sat'?'lbSat':'lbHyb').classList.add('on');
   if(gpsLayer) gpsMap.removeLayer(gpsLayer);
@@ -864,7 +887,7 @@ function updateAutoDistance(){
 // ═══════════════════════════════════════════════════════════
 // SHOT TRACKING
 // ═══════════════════════════════════════════════════════════
-window.trackShot = () => {
+reg('trackShot', () => {
   if(!navigator.geolocation){alert('GPS nicht verfügbar');return;}
   navigator.geolocation.getCurrentPosition(pos=>{
     const ll=[pos.coords.latitude,pos.coords.longitude];
@@ -884,7 +907,7 @@ window.trackShot = () => {
   },()=>alert('GPS verweigert'),{enableHighAccuracy:true,timeout:8000});
 };
 
-window.undoShot = () => {
+reg('undoShot', () => {
   if(shots[cur].length===0) return;
   shots[cur].pop();
   scores[cur]=shots[cur].length;
@@ -914,12 +937,12 @@ function renderShotList(){
   }).join('');
 }
 
-window.setClub=(i,v)=>{ shots[cur][i].club=v; };
+reg('setClub',(i,v)=>{ shots[cur][i].club=v; });
 
 // ═══════════════════════════════════════════════════════════
 // TABS
 // ═══════════════════════════════════════════════════════════
-window.showTab=(t)=>{
+reg('showTab',(t)=>{
   const tabs=['hole','score','card','gpsmap','social'];
   document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('on',tabs[i]===t));
   document.querySelectorAll('.page').forEach((el,i)=>el.classList.toggle('on','tab-'+tabs[i]==='tab-'+t));
@@ -928,7 +951,7 @@ window.showTab=(t)=>{
   if(t==='social'){loadSocialData();}
 };
 
-window.setTee=(t)=>{
+reg('setTee',(t)=>{
   tee=t;
   document.querySelectorAll('.tee-btn').forEach(b=>b.classList.remove('on'));
   document.querySelector('.tee-btn.'+t).classList.add('on');
@@ -940,9 +963,9 @@ function getHcp(){return Math.min(54,Math.max(0,parseFloat(document.getElementBy
 function extraShots(i,hcp){const base=Math.floor(hcp/18),rem=hcp%18;return base+(HOLES[i].si<=rem?1:0);}
 function stableford(b,i,hcp){if(!b)return 0;const np=HOLES[i].par+extraShots(i,hcp),d=b-np;return d<=-2?4:d===-1?3:d===0?2:d===1?1:0;}
 
-window.chg=(d)=>{scores[cur]=Math.max(0,scores[cur]+d);render();};
+reg('chg',(d)=>{scores[cur]=Math.max(0,scores[cur]+d);render();});
 
-window.go=(dir)=>{
+reg('go',(dir)=>{
   cur=Math.max(0,Math.min(17,cur+dir));
   if(flagMarker&&holeMap){holeMap.removeLayer(flagMarker);flagMarker=null;}
   document.getElementById('distBig').textContent='—';
@@ -1023,7 +1046,7 @@ function renderCard(hcp){
     <div class="sum-card"><div class="sum-l">Ø Stableford</div><div class="sum-v">${played?(tS/played).toFixed(1):'—'}</div><div class="sum-s">pro Loch</div></div>`;
 }
 
-window.saveRound = async () => {
+reg('saveRound', async () => {
   if(!currentUser){alert('Bitte erst anmelden');return;}
   const hcp=getHcp(),played=scores.filter(s=>s>0).length;
   if(!played){alert('Keine Schläge eingegeben!');return;}
@@ -1042,7 +1065,7 @@ window.saveRound = async () => {
   } catch(e){alert('Fehler: '+e.message);}
 };
 
-window.resetRound = () => {
+reg('resetRound', () => {
   if(!confirm('Alle Schläge zurücksetzen?')) return;
   scores=new Array(18).fill(0);
   shots=Array.from({length:18},()=>[]);
@@ -1055,7 +1078,7 @@ window.resetRound = () => {
 // ═══════════════════════════════════════════════════════════
 // KONTO LÖSCHEN
 // ═══════════════════════════════════════════════════════════
-window.deleteAccount = async () => {
+reg('deleteAccount', async () => {
   if(!currentUser) return;
   if(!confirm('Konto und ALLE Daten dauerhaft löschen? Dies kann nicht rückgängig gemacht werden.')) return;
   if(!confirm('Bist du wirklich sicher? Alle Runden, Freunde und dein Profil werden gelöscht.')) return;
