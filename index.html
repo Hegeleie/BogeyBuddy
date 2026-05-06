@@ -426,25 +426,11 @@ html,body{height:100%;background:#0d1f08;font-family:'DM Sans',sans-serif;}
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-// Shim: allows onclick="doLogin()" etc to work with ES modules
-const _pending = {};
-['doLogin','doRegister','doLogout','switchAuthTab','showTab','setTee','go','chg',
- 'trackShot','undoShot','setClub','saveRound','resetRound','addFriend','deleteRound',
- 'deleteAccount','setLayer','setHoleLayer'].forEach(fn => {
-  window[fn] = (...args) => {
-    if(window['__'+fn]) return window['__'+fn](...args);
-    console.warn(fn+' not ready yet');
-  };
-});
-window.__registerFn = (name, fn) => {
-  window['__'+name] = fn;
-  window[name] = fn;
-};
-</script>
-<script type="module" id="mainModule">
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, query, orderBy, limit, where, onSnapshot, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+// Firebase loaded via compat scripts in <head>
+const { initializeApp } = firebase;
+const { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } = firebase.auth ? firebase.auth : {};
+// Firebase compat SDK loaded globally
 
 const firebaseConfig = {
   apiKey: "AIzaSyC_23izER5pTvnhftYAWla7GQt3S_ULm-w",
@@ -456,9 +442,9 @@ const firebaseConfig = {
   measurementId: "G-K9KD8QVTTP"
 };
 
-const fbApp = initializeApp(firebaseConfig);
-const auth = getAuth(fbApp);
-const db = getFirestore(fbApp);
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 
 // ═══════════════════════════════════════════════════════════
 // PLATZDATEN
@@ -538,7 +524,7 @@ reg('doLogin', async () => {
   const email=document.getElementById('loginEmail').value;
   const pw=document.getElementById('loginPw').value;
   try {
-    await signInWithEmailAndPassword(auth, email, pw);
+    await auth.signInWithEmailAndPassword(email, pw);
   } catch(e) {
     document.getElementById('authError').textContent = 'Falsche E-Mail oder Passwort';
   }
@@ -551,10 +537,10 @@ reg('doRegister' = async () => {
   if(!name){document.getElementById('authError').textContent='Bitte Namen eingeben';return;}
   if(!document.getElementById('privacyCheck').checked){document.getElementById('authError').textContent='Bitte Datenschutzhinweis bestätigen';return;}
   try {
-    const cred = await createUserWithEmailAndPassword(auth, email, pw);
-    await updateProfile(cred.user, {displayName: name});
-    await setDoc(doc(db,'users',cred.user.uid),{
-      name, email, hcp:54, createdAt:serverTimestamp(), friends:[]
+    const cred = await auth.createUserWithEmailAndPassword(email, pw);
+    await cred.user.updateProfile({displayName: name});
+    await db.collection('users').doc(cred.user.uid).set({
+      name, email, hcp:54, createdAt:firebase.firestore.FieldValue.serverTimestamp(), friends:[]
     });
   } catch(e) {
     document.getElementById('authError').textContent = e.code==='auth/email-already-in-use'?'E-Mail bereits vergeben':'Fehler: '+e.message;
@@ -562,10 +548,10 @@ reg('doRegister' = async () => {
 });
 
 reg('doLogout' = async () => {
-  await signOut(auth);
+  await auth.signOut();
 });
 
-onAuthStateChanged(auth, async (user) => {
+auth.onAuthStateChanged( async (user) => {
   document.getElementById('loadingOverlay').style.display='none';
   if(user) {
     currentUser = user;
@@ -573,7 +559,7 @@ onAuthStateChanged(auth, async (user) => {
     document.getElementById('mainApp').classList.remove('hidden');
     document.getElementById('hdrUser').textContent = user.displayName || user.email;
 
-    const uSnap = await getDoc(doc(db,'users',user.uid));
+    const uSnap = await db.collection('users').doc(user.uid).get();
     if(uSnap.exists()) {
       userProfile = uSnap.data();
       if(userProfile.hcp) document.getElementById('hcpIn').value = userProfile.hcp;
@@ -595,17 +581,17 @@ reg('addFriend', async () => {
   const email = document.getElementById('friendEmail').value.trim();
   if(!email || !currentUser) return;
   try {
-    const q = query(collection(db,'users'), where('email','==',email));
-    const snap = await getDocs(q);
+    const q = db.collection('users').where('email','==',email);
+    const snap = await q.get();
     if(snap.empty){alert('Kein Nutzer mit dieser E-Mail gefunden');return;}
     const friendDoc = snap.docs[0];
     const friendId = friendDoc.id;
     const friendName = friendDoc.data().name;
-    const myRef = doc(db,'users',currentUser.uid);
-    const mySnap = await getDoc(myRef);
-    const friends = mySnap.data().friends || [];
+    const mySnap = await db.collection('users').doc(currentUser.uid).get();
+    const mySnap2 = await db.collection('users').doc(currentUser.uid).get();
+    const friends = mySnap2.exists ? (mySnap2.data().friends||[]) : [];
     if(friends.includes(friendId)){alert('Bereits in deiner Freundesliste');return;}
-    await setDoc(myRef,{friends:[...friends,friendId]},{merge:true});
+    await db.collection('users').doc(currentUser.uid).set({friends:[...friends,friendId]},{merge:true});
     document.getElementById('friendEmail').value='';
     alert(friendName+' hinzugefügt! 🏌️');
     loadSocialData();
@@ -620,8 +606,8 @@ async function loadSocialData() {
 }
 
 async function loadLeaderboard() {
-  const q = query(collection(db,'rounds'), orderBy('totalStab','desc'), limit(10));
-  const snap = await getDocs(q);
+  const q = db.collection('rounds').orderBy('totalStab','desc').limit(10);
+  const snap = await q.get();
   const lb = document.getElementById('leaderboard');
   if(snap.empty){lb.innerHTML='<div style="text-align:center;color:#bbb;padding:20px;font-size:13px;">Noch keine Runden gespielt</div>';return;}
 
@@ -643,14 +629,14 @@ async function loadLeaderboard() {
 
 async function loadFriends() {
   if(!currentUser) return;
-  const mySnap = await getDoc(doc(db,'users',currentUser.uid));
+  const mySnap = await db.collection('users').doc(currentUser.uid).get();
   if(!mySnap.exists()) return;
   const friends = mySnap.data().friends || [];
   const fl = document.getElementById('friendsList');
   if(!friends.length){fl.innerHTML='<div style="font-size:12px;color:#bbb;">Noch keine Freunde hinzugefügt</div>';return;}
 
   const items = await Promise.all(friends.map(async fid=>{
-    const fSnap = await getDoc(doc(db,'users',fid));
+    const fSnap = await db.collection('users').doc(fid).get();
     if(!fSnap.exists()) return null;
     const f = fSnap.data();
     const initials = (f.name||'?').split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
@@ -667,7 +653,7 @@ async function loadFriends() {
 
 async function loadFeed() {
   if(!currentUser) return;
-  const mySnap = await getDoc(doc(db,'users',currentUser.uid));
+  const mySnap = await db.collection('users').doc(currentUser.uid).get();
   const friends = mySnap.exists() ? (mySnap.data().friends||[]) : [];
   const uids = [currentUser.uid, ...friends];
 
@@ -675,8 +661,8 @@ async function loadFeed() {
   let allRounds = [];
 
   for(const uid of uids.slice(0,5)) {
-    const q = query(collection(db,'rounds'), where('userId','==',uid), orderBy('createdAt','desc'), limit(3));
-    const snap = await getDocs(q);
+    const q = db.collection('rounds').where('userId','==',uid).orderBy('createdAt','desc').limit(3);
+    const snap = await q.get();
     snap.docs.forEach(d=>allRounds.push({id:d.id,...d.data()}));
   }
 
@@ -702,8 +688,7 @@ async function loadFeed() {
 
 reg('deleteRound', async (id) => {
   if(!confirm('Runde löschen?')) return;
-  const {deleteDoc} = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
-  await deleteDoc(doc(db,'rounds',id));
+    await db.collection('rounds').doc(id).delete();
   loadFeed();
   loadLeaderboard();
 };
@@ -1052,13 +1037,13 @@ reg('saveRound', async () => {
   if(!played){alert('Keine Schläge eingegeben!');return;}
   const tB=scores.reduce((a,b)=>a+b,0),tS=scores.reduce((s,b,i)=>s+stableford(b,i,hcp),0);
   try {
-    await addDoc(collection(db,'rounds'),{
+    await db.collection('rounds').add({
       userId:currentUser.uid,
       userName:currentUser.displayName||currentUser.email,
       date:new Date().toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}),
       hcp,tee,scores:[...scores],totalBrutto:tB,totalStab:tS,played,
       shots:shots.map(h=>h.map(s=>({lat:s.lat,lon:s.lon,dist:s.dist,club:s.club||''}))),
-      createdAt:serverTimestamp(),
+      createdAt:firebase.firestore.FieldValue.serverTimestamp(),
     });
     alert('Runde gespeichert & geteilt! 🏌️');
     showTab('social');
@@ -1083,21 +1068,17 @@ reg('deleteAccount', async () => {
   if(!confirm('Konto und ALLE Daten dauerhaft löschen? Dies kann nicht rückgängig gemacht werden.')) return;
   if(!confirm('Bist du wirklich sicher? Alle Runden, Freunde und dein Profil werden gelöscht.')) return;
   try {
-    const {deleteDoc, getDocs, query, collection, where} = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
-    const {deleteUser} = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js');
     // Alle Runden löschen
-    const roundsQ = query(collection(db,'rounds'), where('userId','==',currentUser.uid));
-    const roundsSnap = await getDocs(roundsQ);
-    await Promise.all(roundsSnap.docs.map(d => deleteDoc(doc(db,'rounds',d.id))));
-    // Nutzerprofil löschen
-    await deleteDoc(doc(db,'users',currentUser.uid));
-    // Auth-Konto löschen
-    await deleteUser(currentUser);
+    const roundsQ = query(db.collection('rounds'), where('userId','==',currentUser.uid));
+    const roundsSnap = await db.collection('rounds').where('userId','==',currentUser.uid).get();
+    await Promise.all(roundsSnap.docs.map(d => d.ref.delete()));
+    await db.collection('users').doc(currentUser.uid).delete();
+    await currentUser.delete();
     alert('Konto wurde vollständig gelöscht.');
   } catch(e) {
     if(e.code==='auth/requires-recent-login') {
       alert('Aus Sicherheitsgründen musst du dich zuerst neu anmelden, dann erneut versuchen.');
-      await signOut(auth);
+      await auth.signOut();
     } else {
       alert('Fehler: '+e.message);
     }
