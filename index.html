@@ -507,7 +507,7 @@ let gpsMap=null, gpsLayer=null, gpsMapInited=false;
 let holeMap=null, holeLayer=null, holeMapInited=false;
 let distRings=[], greenMarkers=[], fairwayPolygons=[], teeMarkers=[], shotMapMarkers=[];
 let osmData={greens:[],tees:[],fairways:[]}, osmLoaded=false;
-let shots=Array.from({length:18},()=[]); // [{lat,lon,dist}]
+let shots=Array.from({length:18},function(){return [];}); // [{lat,lon,dist}]
 let currentUser=null, userProfile=null;
 
 // ═══════════════════════════════════════════════════════════
@@ -946,7 +946,7 @@ function renderShotList(){
   }).join('');
 }
 
-window.setClub = (i,v)=>{ shots[cur][i].club=v; });
+window.setClub = function(i,v){ shots[cur][i].club=v; };
 
 // ═══════════════════════════════════════════════════════════
 // TABS
@@ -972,7 +972,7 @@ function getHcp(){return Math.min(54,Math.max(0,parseFloat(document.getElementBy
 function extraShots(i,hcp){const base=Math.floor(hcp/18),rem=hcp%18;return base+(HOLES[i].si<=rem?1:0);}
 function stableford(b,i,hcp){if(!b)return 0;const np=HOLES[i].par+extraShots(i,hcp),d=b-np;return d<=-2?4:d===-1?3:d===0?2:d===1?1:0;}
 
-window.chg = (d)=>{scores[cur]=Math.max(0,scores[cur]+d);render();});
+window.chg = function(d){scores[cur]=Math.max(0,scores[cur]+d);render();};
 
 window.go = (dir)=>{
   cur=Math.max(0,Math.min(17,cur+dir));
@@ -1077,7 +1077,7 @@ window.saveRound = async () => {
 window.resetRound = () => {
   if(!confirm('Alle Schläge zurücksetzen?')) return;
   scores=new Array(18).fill(0);
-  shots=Array.from({length:18},()=>[]);
+  shots=Array.from({length:18},function(){return [];});
   cur=0;
   renderShotList();
   render();
