@@ -754,11 +754,13 @@ async function loadLeaderboard() {
     const r=d.data();
     const rankCls = i<3?ranks[i]:'';
     const dT = r.totalBrutto-72;
-    return `<div class="lb-card">
+    const scoreSpans=(r.scores||[]).filter(s=>s>0).length>0?(r.scores||[]).map((s,si)=>{const d=s-(HOLES[si]?.par||4);const c=d<=-2?'eagle':d===-1?'birdie':d===1?'bogey':d>=2?'dbl':'';return`<span class="${c}" style="display:inline-block;min-width:20px;text-align:center;margin:1px;font-size:10px;border-radius:3px;padding:1px 2px">${s||'·'}</span>`;}).join(''):'';
+    return `<div class="lb-card" style="flex-wrap:wrap;">
       <div class="lb-rank ${rankCls}">${i+1}</div>
-      <div class="lb-info">
+      <div class="lb-info" style="flex:1;">
         <div class="lb-name">${r.userName||'Unbekannt'}</div>
         <div class="lb-meta">${r.date||''} · ${r.totalBrutto} Brutto · ${dT>=0?'+':''}${dT}</div>
+        ${scoreSpans?`<div style="margin-top:4px;cursor:pointer;" onclick="this.nextElementSibling.classList.toggle('open')" class="r-more">Details ▾</div><div class="r-detail">${scoreSpans}</div>`:''}
       </div>
       <div class="lb-pts">${r.totalStab}</div>
     </div>`;
@@ -778,16 +780,22 @@ async function loadFriends() {
     if(!fSnap.exists) return null;
     const f = fSnap.data();
     const initials = (f.name||'?').split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+    // Gegenseitigkeit prüfen
+    const theirFriends = f.friends || [];
+    const isMutual = theirFriends.includes(currentUser.uid);
     let lastRoundHtml = '';
-    try {
-      const rSnap = await db.collection('rounds').where('userId','==',fid).orderBy('createdAt','desc').limit(1).get();
-      if(!rSnap.empty) {
-        const r = rSnap.docs[0].data();
-        const dT = r.totalBrutto - 72;
-        lastRoundHtml = '<div style="font-size:11px;color:#aaa;margin-top:3px;">'+( r.date||'')+' &middot; <span style="color:#1e4d0a;font-weight:700;">'+r.totalStab+' Pkt</span> &middot; '+(dT>=0?'+':'')+dT+' zum Par</div>';
-      }
-    } catch(e){}
-    return '<div class="user-card"><div class="user-avatar">'+initials+'</div><div class="user-info"><div class="user-name">'+f.name+'</div><div class="user-meta">'+(f.username?'@'+f.username+' &middot; ':'')+' HCP '+(f.hcp||'—')+'</div>'+lastRoundHtml+'</div></div>';
+    if(isMutual) {
+      try {
+        const rSnap = await db.collection('rounds').where('userId','==',fid).orderBy('createdAt','desc').limit(1).get();
+        if(!rSnap.empty) {
+          const r = rSnap.docs[0].data();
+          const dT = r.totalBrutto - 72;
+          lastRoundHtml = '<div style="font-size:11px;color:#aaa;margin-top:3px;">'+(r.date||'')+' &middot; <span style="color:#1e4d0a;font-weight:700;">'+r.totalStab+' Pkt</span> &middot; '+(dT>=0?'+':'')+dT+' zum Par</div>';
+        }
+      } catch(e){}
+    }
+    const pendingBadge = !isMutual ? '<span style="font-size:10px;background:#fff3cd;color:#856404;border-radius:6px;padding:2px 7px;margin-left:6px;">⏳ Ausstehend</span>' : '';
+    return '<div class="user-card"><div class="user-avatar" style="opacity:'+(isMutual?'1':'0.5')+'">'+initials+'</div><div class="user-info"><div class="user-name">'+f.name+pendingBadge+'</div><div class="user-meta">'+(f.username?'@'+f.username+' &middot; ':'')+' HCP '+(f.hcp||'—')+'</div>'+lastRoundHtml+'</div></div>';
   }));
   fl.innerHTML = items.filter(Boolean).join('');
 }
@@ -795,24 +803,32 @@ async function loadFriends() {
 async function loadFeed(showAll=false) {
   if(!currentUser) return;
   const mySnap = await db.collection('users').doc(currentUser.uid).get();
-  const friends = mySnap.exists ? (mySnap.data().friends||[]) : [];
-  const uids = [currentUser.uid, ...friends];
+  const myFriends = mySnap.exists ? (mySnap.data().friends||[]) : [];
+
+  // Nur gegenseitige Freunde: beide müssen sich gegenseitig geaddet haben
+  const mutualFriends = [];
+  for(const fid of myFriends) {
+    try {
+      const fSnap = await db.collection('users').doc(fid).get();
+      const theirFriends = fSnap.exists ? (fSnap.data().friends||[]) : [];
+      if(theirFriends.includes(currentUser.uid)) mutualFriends.push(fid);
+    } catch(e){}
+  }
+  const uids = [currentUser.uid, ...mutualFriends];
 
   const feed = document.getElementById('feedRounds');
   feed.innerHTML = '<div style="text-align:center;color:#bbb;padding:20px;font-size:13px;">Wird geladen…</div>';
   let allRounds = [];
 
-  // Pro Person nur die neueste Runde laden (kein orderBy = kein Index-Problem)
   for(const uid of uids.slice(0,10)) {
     try {
       const snap = await db.collection('rounds').where('userId','==',uid).orderBy('createdAt','desc').limit(showAll?5:1).get();
       snap.docs.forEach(d=>allRounds.push({id:d.id,...d.data()}));
     } catch(e) {
-      // Fallback ohne orderBy falls Index fehlt
-      try {
-        const snap2 = await db.collection('rounds').where('userId','==',uid).limit(showAll?5:2).get();
-        snap2.docs.forEach(d=>allRounds.push({id:d.id,...d.data()}));
-      } catch(e2){ console.warn('Feed fallback failed:', e2); }
+      console.warn('Feed query failed for uid '+uid+':', e.message);
+      if(e.message && e.message.includes('permission')) {
+        console.warn('>>> Firestore Security Rules blockieren Lesezugriff auf Runden anderer Nutzer!');
+      }
     }
   }
 
