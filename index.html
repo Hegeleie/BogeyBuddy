@@ -365,7 +365,7 @@ html,body{height:100%;background:#0d1f08;font-family:'DM Sans',sans-serif;}
 
   <!-- SCORE TAB -->
   <div class="page" id="tab-score">
-    <div class="hcp-bar"><label>Handicap-Index</label><input class="hcp-in" type="number" id="hcpIn" value="54" min="0" max="54" onchange="render()"/></div>
+    <div class="hcp-bar"><label>Handicap-Index</label><input class="hcp-in" type="number" id="hcpIn" value="54" min="0" max="54" step="0.1" onchange="saveHcp();render()"/></div>
     <div class="score-block">
       <div class="sb"><div class="sb-l">Brutto · Loch <span id="hNs">1</span></div><div class="sb-v" id="scV">0</div><div class="sb-s c-gray" id="scS">Kein Schlag</div></div>
       <div class="sb"><div class="sb-l">Stableford</div><div class="sb-v" id="stbV">—</div><div class="sb-s c-gray">Netto-Par: <span id="netP">—</span></div></div>
@@ -388,6 +388,7 @@ html,body{height:100%;background:#0d1f08;font-family:'DM Sans',sans-serif;}
       <div class="tot"><div class="tot-l">Stableford</div><div class="tot-v" id="totS">0</div><div class="tot-s">Punkte gesamt</div></div>
     </div>
     <div class="reset-wrap"><button class="reset-btn" onclick="resetRound()">🔄 Runde zurücksetzen</button></div>
+    <button class="save-btn" onclick="saveRound()">💾 Runde speichern & teilen</button>
   </div>
 
   <!-- CARD TAB -->
@@ -1218,7 +1219,7 @@ window.saveRound = async () => {
       userName:currentUser.displayName||currentUser.email,
       date:new Date().toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}),
       hcp,tee,scores:[...scores],totalBrutto:tB,totalStab:tS,played,
-      shots:shots.map(h=>h.map(s=>({lat:s.lat,lon:s.lon,dist:s.dist,club:s.club||''}))),
+      shots:shots.map(h=>h.map(s=>({lat:s.lat,lon:s.lon,dist:s.dist,club:s.club||''}))).map(h=>JSON.stringify(h)),
       createdAt:firebase.firestore.FieldValue.serverTimestamp(),
     });
     alert('Runde gespeichert & geteilt! 🏌️');
