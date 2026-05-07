@@ -362,6 +362,10 @@ html,body{height:100%;background:#0d1f08;font-family:'DM Sans',sans-serif;}
   <!-- SCORE TAB -->
   <div class="page" id="tab-score">
     <div class="hcp-bar"><label>Handicap-Index</label><input class="hcp-in" type="number" id="hcpIn" value="54" min="0" max="54" onchange="render()"/></div>
+  <div id="apiStatusBar" style="display:none;padding:7px 14px;font-size:11px;border-bottom:1px solid #eee;display:flex;align-items:center;gap:6px;">
+    <div id="apiDot" style="width:7px;height:7px;border-radius:50%;background:#bbb;flex-shrink:0;"></div>
+    <span id="apiStatusTxt">Platzdaten werden geprüft…</span>
+  </div>
     <div class="score-block">
       <div class="sb"><div class="sb-l">Brutto · Loch <span id="hNs">1</span></div><div class="sb-v" id="scV">0</div><div class="sb-s c-gray" id="scS">Kein Schlag</div></div>
       <div class="sb"><div class="sb-l">Stableford</div><div class="sb-v" id="stbV">—</div><div class="sb-s c-gray">Netto-Par: <span id="netP">—</span></div></div>
@@ -471,23 +475,32 @@ const HOLES = [
 // ═══════════════════════════════════════════════════════════
 const GOLF_API_KEY = 'CANQ4PLRI77N3PB2IHKWPW4KVI';
 
+function setApiStatus(txt, color) {
+  var bar = document.getElementById('apiStatusBar');
+  var dot = document.getElementById('apiDot');
+  var lbl = document.getElementById('apiStatusTxt');
+  if(bar) bar.style.display='flex';
+  if(dot) dot.style.background = color||'#bbb';
+  if(lbl) lbl.textContent = txt;
+}
+
 async function loadGolfCourseData() {
+  setApiStatus('GolfCourse API wird abgefragt…','#f97316');
   try {
-    // Suche nach GC Mettmann
     const searchResp = await fetch(
       'https://api.golfcourseapi.com/v1/search?search_query=Golfclub+Mettmann',
       { headers: { 'Authorization': 'Key ' + GOLF_API_KEY } }
     );
-    if(!searchResp.ok) throw new Error('Search failed: '+searchResp.status);
+    if(!searchResp.ok) throw new Error('HTTP '+searchResp.status);
     const searchData = await searchResp.json();
     
     if(!searchData.courses || searchData.courses.length === 0) {
-      console.log('GC Mettmann nicht in GolfCourseAPI gefunden');
+      setApiStatus('GC Mettmann nicht in API gefunden – eigene Daten aktiv','#f97316');
       return false;
     }
     
     const course = searchData.courses[0];
-    console.log('GolfCourseAPI: Gefunden!', course.club_name, course.course_name);
+    setApiStatus('Gefunden: '+course.club_name+' – lade Lochdaten…','#f97316');
     
     // Hole-Daten laden
     const courseResp = await fetch(
@@ -532,21 +545,14 @@ async function loadGolfCourseData() {
         }
       });
       
-      console.log('✓ Offizielle Lochdaten geladen:', yellowTee.tee_name);
-      
-      // UI Hinweis
-      const hint = document.createElement('div');
-      hint.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1e4d0a;color:#c8e6a0;padding:8px 16px;border-radius:20px;font-size:12px;z-index:9999;font-family:DM Sans,sans-serif;';
-      hint.textContent='✓ Offizielle Platzdaten geladen';
-      document.body.appendChild(hint);
-      setTimeout(()=>hint.remove(), 3000);
+      setApiStatus('✓ Offizielle Platzdaten von GolfCourse API geladen','#4a9a2a');
       
       render(); // App neu rendern mit offiziellen Daten
       return true;
     }
     return false;
   } catch(e) {
-    console.warn('GolfCourseAPI nicht verfügbar:', e.message);
+    setApiStatus('API nicht erreichbar – eigene Daten aktiv ('+e.message+')','#bbb');
     return false;
   }
 }
