@@ -466,6 +466,91 @@ const HOLES = [
   {par:4,si:8, g:357,b:331,r:309,name:'Home Sweet Home'},
 ];
 
+// ═══════════════════════════════════════════════════════════
+// GOLFCOURSE API – lädt offizielle Lochdaten wenn verfügbar
+// ═══════════════════════════════════════════════════════════
+const GOLF_API_KEY = 'CANQ4PLRI77N3PB2IHKWPW4KVI';
+
+async function loadGolfCourseData() {
+  try {
+    // Suche nach GC Mettmann
+    const searchResp = await fetch(
+      'https://api.golfcourseapi.com/v1/search?search_query=Golfclub+Mettmann',
+      { headers: { 'Authorization': 'Key ' + GOLF_API_KEY } }
+    );
+    if(!searchResp.ok) throw new Error('Search failed: '+searchResp.status);
+    const searchData = await searchResp.json();
+    
+    if(!searchData.courses || searchData.courses.length === 0) {
+      console.log('GC Mettmann nicht in GolfCourseAPI gefunden');
+      return false;
+    }
+    
+    const course = searchData.courses[0];
+    console.log('GolfCourseAPI: Gefunden!', course.club_name, course.course_name);
+    
+    // Hole-Daten laden
+    const courseResp = await fetch(
+      'https://api.golfcourseapi.com/v1/courses/' + course.id,
+      { headers: { 'Authorization': 'Key ' + GOLF_API_KEY } }
+    );
+    if(!courseResp.ok) throw new Error('Course fetch failed');
+    const courseData = await courseResp.json();
+    
+    // Tee-Boxen finden (Male/Gelb zuerst)
+    const tees = courseData.tees;
+    const maleTees = tees && tees.male ? tees.male : [];
+    const yellowTee = maleTees.find(t => 
+      t.tee_name.toLowerCase().includes('gelb') || 
+      t.tee_name.toLowerCase().includes('yellow') ||
+      t.tee_name.toLowerCase().includes('men')
+    ) || maleTees[0];
+    
+    const blueTee = maleTees.find(t => 
+      t.tee_name.toLowerCase().includes('blau') || 
+      t.tee_name.toLowerCase().includes('blue')
+    ) || maleTees[1];
+    
+    const femaleTees = tees && tees.female ? tees.female : [];
+    const redTee = femaleTees.find(t =>
+      t.tee_name.toLowerCase().includes('rot') ||
+      t.tee_name.toLowerCase().includes('red')
+    ) || femaleTees[0];
+    
+    if(yellowTee && yellowTee.holes && yellowTee.holes.length === 18) {
+      // HOLES Array mit offiziellen Daten überschreiben
+      yellowTee.holes.forEach((h, i) => {
+        if(HOLES[i]) {
+          HOLES[i].par = h.par;
+          HOLES[i].si  = h.handicap;
+          // Yards zu Metern (1 yard = 0.9144m)
+          HOLES[i].g = Math.round(h.yardage * 0.9144);
+          if(blueTee && blueTee.holes && blueTee.holes[i])
+            HOLES[i].b = Math.round(blueTee.holes[i].yardage * 0.9144);
+          if(redTee && redTee.holes && redTee.holes[i])
+            HOLES[i].r = Math.round(redTee.holes[i].yardage * 0.9144);
+        }
+      });
+      
+      console.log('✓ Offizielle Lochdaten geladen:', yellowTee.tee_name);
+      
+      // UI Hinweis
+      const hint = document.createElement('div');
+      hint.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1e4d0a;color:#c8e6a0;padding:8px 16px;border-radius:20px;font-size:12px;z-index:9999;font-family:DM Sans,sans-serif;';
+      hint.textContent='✓ Offizielle Platzdaten geladen';
+      document.body.appendChild(hint);
+      setTimeout(()=>hint.remove(), 3000);
+      
+      render(); // App neu rendern mit offiziellen Daten
+      return true;
+    }
+    return false;
+  } catch(e) {
+    console.warn('GolfCourseAPI nicht verfügbar:', e.message);
+    return false;
+  }
+}
+
 const GREEN_COORDS = [
   [51.282167, 7.000083],[51.281000, 6.995500],[51.281472, 6.998333],
   [51.280639, 6.991861],[51.279778, 6.986639],[51.280194, 6.984583],
@@ -581,7 +666,7 @@ firebase.auth().onAuthStateChanged(function(user) {
         if(userProfile && userProfile.hcp) document.getElementById('hcpIn').value = userProfile.hcp;
       }
     }).catch(function(e){ console.warn('User data:', e); });
-    setTimeout(function(){initHoleMap();loadOSMData();}, 300);
+    setTimeout(function(){initHoleMap();loadOSMData();loadGolfCourseData();}, 500);
     setTimeout(function(){try{loadSocialData();}catch(e){console.warn('Social:',e);}}, 500);
   } else {
     currentUser = null;
