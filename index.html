@@ -858,7 +858,11 @@ function initHoleMap() {
   holeMap = L.map('holeMap',{zoomControl:false,attributionControl:false,dragging:true,scrollWheelZoom:true}).setView(coord,17);
   holeLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:20}).addTo(holeMap);
   // Track wenn Nutzer die Karte selbst bewegt – dann kein Auto-Zentrieren mehr
-  holeMap.on('dragstart zoomstart', function() { mapUserMoved = true; });
+  holeMap.on('dragstart', function() { mapUserMoved = true; });
+  holeMap.on('zoomstart', function(e) {
+    // Nur bei echtem User-Zoom (nicht bei programmatischem setView)
+    if(e.originalEvent) mapUserMoved = true;
+  });
   holeMap.on('click', e=>{
     if(flagMarker) holeMap.removeLayer(flagMarker);
     flagMarker = L.marker(e.latlng,{icon:pinIcon()}).addTo(holeMap);
