@@ -1053,16 +1053,18 @@ function stableford(b,i,hcp){if(!b)return 0;const np=HOLES[i].par+extraShots(i,h
 
 window.chg = function(d){scores[cur]=Math.max(0,scores[cur]+d);render();};
 
-window.go = (dir)=>{
+window.go = function(dir){
   cur=Math.max(0,Math.min(17,cur+dir));
   if(flagMarker&&holeMap){holeMap.removeLayer(flagMarker);flagMarker=null;}
   document.getElementById('distBig').textContent='—';
   document.getElementById('mapDist').textContent='—';
-  document.getElementById('mapHint').textContent='⛳ Karte antippen um Fahnenposition zu setzen';
+  var mh=document.getElementById('mapHint');
+  if(mh) mh.textContent='⛳ Karte antippen um Fahnenposition zu setzen';
   renderShotList();
   render();
   updateHoleMap();
 };
+var go = window.go;
 
 function render(){
   const hcp=getHcp(),h=HOLES[cur],s=scores[cur],par=h.par;
@@ -1101,7 +1103,7 @@ function render(){
 
   ['dots','dots2'].forEach(id=>{
     const el=document.getElementById(id);el.innerHTML='';
-    for(let i=0;i<18;i++){const d=document.createElement('div');d.className='hdot'+(i===cur?' cur':(scores[i]>0?' done':''));d.onclick=()=>{cur=i;go(0);};el.appendChild(d);}
+    for(let i=0;i<18;i++){const d=document.createElement('div');d.className='hdot'+(i===cur?' cur':(scores[i]>0?' done':''));d.onclick=(function(idx){return function(){cur=idx;window.go(0);};})(i);el.appendChild(d);}
   });
 
   const tB=scores.reduce((a,b)=>a+b,0),tS=scores.reduce((s,b,i)=>s+stableford(b,i,hcp),0),dT=tB-72;
