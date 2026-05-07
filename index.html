@@ -32,7 +32,7 @@ html,body{height:100%;background:#0d1f08;font-family:'DM Sans',sans-serif;}
 
 /* MAIN APP */
 .app{max-width:430px;margin:0 auto;background:#fff;min-height:100vh;display:flex;flex-direction:column;}
-.app.hidden{display:none;}
+.hidden{display:none !important;}
 
 /* HEADER */
 .hdr{background:#0d1f08;color:#c8e6a0;padding:12px 16px 10px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
@@ -623,9 +623,12 @@ window.addFriend = async () => {
 
 async function loadSocialData() {
   if(!currentUser) return;
-  await loadLeaderboard();
-  await loadFriends();
-  await loadFeed();
+  try { await loadLeaderboard(); } catch(e) { 
+    console.warn('Leaderboard needs index:', e);
+    document.getElementById('leaderboard').innerHTML='<div style="font-size:12px;color:#bbb;padding:14px;">Bestenliste wird eingerichtet…<br><small>Firebase Index wird erstellt</small></div>';
+  }
+  try { await loadFriends(); } catch(e) { console.warn('Friends:', e); }
+  try { await loadFeed(); } catch(e) { console.warn('Feed:', e); }
 }
 
 async function loadLeaderboard() {
