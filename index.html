@@ -298,7 +298,6 @@ html,body{height:100%;background:#0d1f08;font-family:'DM Sans',sans-serif;}
     <button class="tab on" onclick="showTab('hole')">⛳ Loch</button>
     <button class="tab" onclick="showTab('score')">📊 Score</button>
     <button class="tab" onclick="showTab('card')">📋 Karte</button>
-    <button class="tab" onclick="showTab('gpsmap')">🗺 GPS</button>
     <button class="tab" onclick="showTab('social')">👥 Freunde</button>
   </div>
 
@@ -309,6 +308,7 @@ html,body{height:100%;background:#0d1f08;font-family:'DM Sans',sans-serif;}
       <div class="map-overlay-tl">
         <div class="map-badge" id="holeBadge">Loch 1 · Par 4</div>
         <div class="map-badge green" id="osmBadge">🛰 Satellit</div>
+      <div class="map-badge" style="background:rgba(239,68,68,0.8);font-size:10px;">⛳ Antippen = Fahne setzen</div>
       </div>
       <div class="map-layer-btns">
         <button class="map-layer-btn on" id="hlSat" onclick="setHoleLayer('sat')">🛰</button>
@@ -338,6 +338,18 @@ html,body{height:100%;background:#0d1f08;font-family:'DM Sans',sans-serif;}
     <div class="auto-dist-bar">
       <div class="ad"><div class="ad-l">⛳ Zum Green</div><div class="ad-v" id="autoDist">—</div><div class="ad-s" id="autoDistSub">GPS wird geladen…</div></div>
       <div class="ad"><div class="ad-l">🏌️ Schläger</div><div class="ad-v" style="font-size:16px;padding-top:4px;" id="autoClub">—</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid #eee;">
+      <div style="padding:8px 14px;border-right:1px solid #eee;">
+        <div style="font-size:10px;color:#bbb;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:1px;">🚩 Zur Fahne</div>
+        <div style="font-size:22px;font-weight:700;color:#1a1a1a;font-family:'DM Mono',monospace;"><span id="mapDist">—</span><span style="font-size:12px;font-weight:400">m</span></div>
+        <div style="font-size:11px;color:#aaa;" id="mapClub">Fahne antippen</div>
+      </div>
+      <div style="padding:8px 14px;">
+        <div style="font-size:10px;color:#bbb;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:1px;">📐 Vorgabe</div>
+        <div style="font-size:22px;font-weight:700;color:#1a1a1a;font-family:'DM Mono',monospace;" id="mapEx">—</div>
+        <div style="font-size:11px;color:#aaa;" id="mapNP">Netto-Par —</div>
+      </div>
     </div>
     <div class="haz-bar" id="hazBar"></div>
     <div class="nav-row">
@@ -383,25 +395,6 @@ html,body{height:100%;background:#0d1f08;font-family:'DM Sans',sans-serif;}
       <table class="sc-tbl"><thead><tr><th>L</th><th>Par</th><th>SI</th><th>Brutto</th><th>Netto</th><th>Stbl</th></tr></thead><tbody id="scB"></tbody></table>
       <div class="sum-grid" id="sumGrid"></div>
       <button class="save-btn" onclick="saveRound()">💾 Runde speichern & teilen</button>
-    </div>
-  </div>
-
-  <!-- GPS MAP TAB -->
-  <div class="page" id="tab-gpsmap">
-    <div class="layer-bar">
-      <button class="lb on" id="lbMap" onclick="setLayer('map')">🗺 Karte</button>
-      <button class="lb" id="lbSat" onclick="setLayer('sat')">🛰 Satellit</button>
-      <button class="lb" id="lbHyb" onclick="setLayer('hyb')">🔀 Hybrid</button>
-    </div>
-    <div id="map"></div>
-    <div class="map-hint" id="mapHint">⛳ Karte antippen um Fahnenposition zu setzen</div>
-    <div class="map-dist-bar">
-      <div class="md"><div class="md-l">Zur Fahne</div><div class="md-v"><span id="mapDist">—</span><span style="font-size:13px;font-weight:400">m</span></div><div class="md-s" id="mapClub">Fahne nicht gesetzt</div></div>
-      <div class="md"><div class="md-l">Vorgabeschläge</div><div class="md-v" id="mapEx">—</div><div class="md-s" id="mapNP">Netto-Par —</div></div>
-    </div>
-    <div class="nav-row" style="border-top:1px solid #eee;">
-      <button class="nav-b" onclick="go(-1)">← Zurück</button>
-      <button class="nav-b primary" onclick="go(1)">Nächstes Loch →</button>
     </div>
   </div>
 
@@ -954,11 +947,10 @@ window.setClub = function(i,v){ shots[cur][i].club=v; };
 // TABS
 // ═══════════════════════════════════════════════════════════
 window.showTab = (t)=>{
-  const tabs=['hole','score','card','gpsmap','social'];
+  const tabs=['hole','score','card','social'];
   document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('on',tabs[i]===t));
   document.querySelectorAll('.page').forEach((el,i)=>el.classList.toggle('on','tab-'+tabs[i]==='tab-'+t));
-  if(t==='hole'){setTimeout(()=>holeMap&&holeMap.invalidateSize(),80);}
-  if(t==='gpsmap'){initGpsMap();setTimeout(()=>gpsMap&&gpsMap.invalidateSize(),80);}
+  if(t==='hole'){setTimeout(function(){if(holeMap)holeMap.invalidateSize();},80);}
   if(t==='social'){loadSocialData();}
 };
 
