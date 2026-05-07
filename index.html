@@ -778,37 +778,49 @@ async function loadFriends() {
     if(!fSnap.exists) return null;
     const f = fSnap.data();
     const initials = (f.name||'?').split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
-    return `<div class="user-card">
-      <div class="user-avatar">${initials}</div>
-      <div class="user-info">
-        <div class="user-name">${f.name}</div>
-        <div class="user-meta">HCP ${f.hcp||'—'}</div>
-      </div>
-    </div>`;
+    let lastRoundHtml = '';
+    try {
+      const rSnap = await db.collection('rounds').where('userId','==',fid).orderBy('createdAt','desc').limit(1).get();
+      if(!rSnap.empty) {
+        const r = rSnap.docs[0].data();
+        const dT = r.totalBrutto - 72;
+        lastRoundHtml = '<div style="font-size:11px;color:#aaa;margin-top:3px;">'+( r.date||'')+' &middot; <span style="color:#1e4d0a;font-weight:700;">'+r.totalStab+' Pkt</span> &middot; '+(dT>=0?'+':'')+dT+' zum Par</div>';
+      }
+    } catch(e){}
+    return '<div class="user-card"><div class="user-avatar">'+initials+'</div><div class="user-info"><div class="user-name">'+f.name+'</div><div class="user-meta">'+(f.username?'@'+f.username+' &middot; ':'')+' HCP '+(f.hcp||'—')+'</div>'+lastRoundHtml+'</div></div>';
   }));
   fl.innerHTML = items.filter(Boolean).join('');
 }
 
-async function loadFeed() {
+async function loadFeed(showAll=false) {
   if(!currentUser) return;
   const mySnap = await db.collection('users').doc(currentUser.uid).get();
   const friends = mySnap.exists ? (mySnap.data().friends||[]) : [];
   const uids = [currentUser.uid, ...friends];
 
   const feed = document.getElementById('feedRounds');
+  feed.innerHTML = '<div style="text-align:center;color:#bbb;padding:20px;font-size:13px;">Wird geladen…</div>';
   let allRounds = [];
 
-  for(const uid of uids.slice(0,5)) {
-    const q = db.collection('rounds').where('userId','==',uid).orderBy('createdAt','desc').limit(3);
-    const snap = await q.get();
-    snap.docs.forEach(d=>allRounds.push({id:d.id,...d.data()}));
+  // Pro Person nur die neueste Runde laden (kein orderBy = kein Index-Problem)
+  for(const uid of uids.slice(0,10)) {
+    try {
+      const snap = await db.collection('rounds').where('userId','==',uid).orderBy('createdAt','desc').limit(showAll?5:1).get();
+      snap.docs.forEach(d=>allRounds.push({id:d.id,...d.data()}));
+    } catch(e) {
+      // Fallback ohne orderBy falls Index fehlt
+      try {
+        const snap2 = await db.collection('rounds').where('userId','==',uid).limit(showAll?5:2).get();
+        snap2.docs.forEach(d=>allRounds.push({id:d.id,...d.data()}));
+      } catch(e2){ console.warn('Feed fallback failed:', e2); }
+    }
   }
 
   allRounds.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
 
-  if(!allRounds.length){feed.innerHTML='<div style="text-align:center;color:#bbb;padding:20px;font-size:13px;">Noch keine Runden</div>';return;}
+  if(!allRounds.length){feed.innerHTML='<div style="text-align:center;color:#bbb;padding:20px;font-size:13px;">Noch keine Runden – spiel eine Runde und teile sie!</div>';return;}
 
-  feed.innerHTML = allRounds.slice(0,10).map((r,idx)=>{
+  feed.innerHTML = allRounds.map((r,idx)=>{
     const dT=r.totalBrutto-72;
     const isMe = r.userId===currentUser.uid;
     const spans=(r.scores||[]).map((s,i)=>{const d=s-(HOLES[i]?.par||4);const c=d<=-2?'eagle':d===-1?'birdie':d===1?'bogey':d>=2?'dbl':'';return`<span class="${c}" style="display:inline-block;min-width:22px;text-align:center;margin:1px;font-size:11px;border-radius:3px;padding:1px 2px">${s||'·'}</span>`;}).join('');
@@ -821,7 +833,7 @@ async function loadFeed() {
       <div class="r-detail" id="fd${idx}">${spans}</div>
       <div class="r-more" onclick="document.getElementById('fd${idx}').classList.toggle('open')">Details ▾</div>
     </div>`;
-  }).join('');
+  }).join('') + (!showAll ? `<button onclick="loadFeed(true)" style="display:block;width:calc(100% - 28px);margin:8px 14px 14px;padding:10px;background:#f8f8f4;color:#555;border:1.5px solid #eee;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;touch-action:manipulation;">Mehr Runden laden ↓</button>` : '');
 }
 
 window.deleteRound = async (id) => {
