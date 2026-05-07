@@ -492,6 +492,119 @@ const GC_CENTER = [51.2814, 6.9983];
 const CLUBS = ['Driver','3-Holz','5-Holz','Hybrid','3-Eisen','4-Eisen','5-Eisen','6-Eisen','7-Eisen','8-Eisen','9-Eisen','PW','SW','LW','Putter'];
 
 // ═══════════════════════════════════════════════════════════
+// HINDERNISSE & ABSCHLÄGE (aus eingemessenen GPS-Koordinaten)
+// ═══════════════════════════════════════════════════════════
+const OBSTACLES = [
+  {h:1,t:'bunker',d:'Bunker links Fairway oben',lat:51.280996,lon:6.999506},
+  {h:1,t:'bunker',d:'Bunker links Fairway unten',lat:51.280816,lon:6.999331},
+  {h:1,t:'bunker',d:'Bunker rechts Fairway',lat:51.28041,lon:6.999633},
+  {h:1,t:'bunker',d:'Bunker links vor Green',lat:51.282024,lon:6.999856},
+  {h:1,t:'bunker',d:'Bunker rechts vor Green',lat:51.282102,lon:7.000439},
+  {h:2,t:'tree',d:'im weg links',lat:51.281697,lon:6.997588},
+  {h:2,t:'bunker',d:'Bunker fairway rechts',lat:51.281989,lon:6.997118},
+  {h:2,t:'bunker',d:'Bunker vor Green rechts',lat:51.281192,lon:6.99563},
+  {h:2,t:'water',d:'Wasser rechts Fairway Mitte',lat:51.281531,lon:6.996099},
+  {h:3,t:'bunker',d:'Bunker fairway links',lat:51.281323,lon:6.997505},
+  {h:3,t:'bunker',d:'Bunker links Green',lat:51.281578,lon:6.998175},
+  {h:3,t:'bunker',d:'Bunker rechts Green',lat:51.281328,lon:6.998508},
+  {h:4,t:'bunker',d:'Bunker rechts Fairway oben',lat:51.280405,lon:6.995864},
+  {h:4,t:'bunker',d:'Bunker rechts fairway mitte',lat:51.280356,lon:6.996173},
+  {h:4,t:'bunker',d:'Bunker rechts Fairway unten',lat:51.280381,lon:6.996509},
+  {h:4,t:'tree',d:'Großer Baum',lat:51.280398,lon:6.995105},
+  {h:4,t:'bunker',d:'Bunker links Fairway unten',lat:51.279939,lon:6.995841},
+  {h:4,t:'bunker',d:'Bunker mitte Fairway rechts',lat:51.280491,lon:6.993524},
+  {h:4,t:'bunker',d:'Bunker mitte Fairway links',lat:51.280308,lon:6.993285},
+  {h:4,t:'bunker',d:'Bunker links vor Green',lat:51.280479,lon:6.991828},
+  {h:4,t:'bunker',d:'Bunker rechts vor Green',lat:51.280709,lon:6.992135},
+  {h:4,t:'bunker',d:'Bunker rechts hinter Green',lat:51.280792,lon:6.991805},
+  {h:5,t:'bunker',d:'Fairwaybunker rechts Mitte',lat:51.280044,lon:6.988485},
+  {h:5,t:'bunker',d:'Fairwaybunker links Mitte unten',lat:51.279874,lon:6.989234},
+  {h:5,t:'bunker',d:'Fairwaybunker links Mitte oben',lat:51.279673,lon:6.988995},
+  {h:5,t:'bunker',d:'Bunker links vor Green',lat:51.279606,lon:6.986658},
+  {h:5,t:'tree',d:'Baum nach Abschlag',lat:51.280142,lon:6.988841},
+  {h:5,t:'bunker',d:'Bunker links hinter Green',lat:51.279679,lon:6.986333},
+  {h:5,t:'bunker',d:'Bunker rechts vor Green',lat:51.279905,lon:6.986796},
+  {h:6,t:'bunker',d:'Bunker rechts Green',lat:51.28036,lon:6.984656},
+  {h:6,t:'bunker',d:'Bunker links Green',lat:51.279998,lon:6.984691},
+  {h:6,t:'water',d:'Wasser rechts Green',lat:51.280328,lon:6.985043},
+  {h:7,t:'tree',d:'Baumgruppe',lat:51.279264,lon:6.98692},
+  {h:7,t:'bunker',d:'Bunker rechts Fairway Mitte',lat:51.278829,lon:6.986539},
+  {h:7,t:'water',d:'Wasser vor Green rechts',lat:51.278945,lon:6.989779},
+  {h:7,t:'bunker',d:'Bunker links vor Green oben',lat:51.27916,lon:6.989484},
+  {h:7,t:'bunker',d:'Bunker links vor Green unten',lat:51.279316,lon:6.989248},
+  {h:8,t:'bunker',d:'Bunker rechts Fairway Mitte oben',lat:51.279093,lon:6.99217},
+  {h:8,t:'bunker',d:'Bunker rechts Fairway Mitte unten',lat:51.279104,lon:6.991764},
+  {h:8,t:'bunker',d:'Bunker vor Green',lat:51.278805,lon:6.993582},
+  {h:8,t:'bunker',d:'Bunker rechts neben Green',lat:51.278542,lon:6.99395},
+  {h:8,t:'tree',d:'Baumgruppe',lat:51.27899,lon:6.99263},
+  {h:9,t:'bunker',d:'Bunker links Green oben',lat:51.278892,lon:6.996128},
+  {h:9,t:'bunker',d:'Bunker rechts Green oben',lat:51.278534,lon:6.99602},
+  {h:9,t:'bunker',d:'Bunker links Green unten',lat:51.27893,lon:6.995728},
+  {h:9,t:'bunker',d:'Bunker rechts Green unten',lat:51.278599,lon:6.995899},
+  {h:10,t:'water',d:'Wasser links Green (groß)',lat:51.278162,lon:6.990171},
+  {h:11,t:'bunker',d:'Bunker rechts vor Green',lat:51.278229,lon:6.985673},
+  {h:11,t:'bunker',d:'Bunker hinter green links',lat:51.278007,lon:6.985151},
+  {h:11,t:'tree',d:'Großer Baum',lat:51.278182,lon:6.986152},
+  {h:11,t:'bunker',d:'Bunker links Fairway Mitte',lat:51.278279,lon:6.987192},
+  {h:12,t:'bunker',d:'Bunker vor grün rechts oben',lat:51.276899,lon:6.983409},
+  {h:12,t:'bunker',d:'Bunker vor grün rechts unten',lat:51.277011,lon:6.983272},
+  {h:12,t:'water',d:'Wasser links Fairway',lat:51.277532,lon:6.983578},
+  {h:13,t:'bunker',d:'Bunker rechts Fairway Mitte',lat:51.273962,lon:6.982772},
+  {h:13,t:'water',d:'Wasser Fairway Mitte',lat:51.274613,lon:6.983648},
+  {h:13,t:'bunker',d:'Bunker links Green',lat:51.273388,lon:6.98434},
+  {h:13,t:'bunker',d:'Bunker rechts Green',lat:51.273039,lon:6.984179},
+  {h:14,t:'bunker',d:'Bunker rechts vor Green',lat:51.277527,lon:6.986165},
+  {h:14,t:'bunker',d:'Bunker fairway rechts',lat:51.27493,lon:6.985381},
+  {h:14,t:'water',d:'Wasser links vor Green',lat:51.277383,lon:6.985474},
+  {h:14,t:'water',d:'graben links vor green',lat:51.2775,lon:6.985713},
+  {h:15,t:'bunker',d:'Bunker links Fairway oben',lat:51.278602,lon:6.982212},
+  {h:15,t:'bunker',d:'Bunker links Fairway unten',lat:51.278492,lon:6.982703},
+  {h:15,t:'tree',d:'Baumgruppe',lat:51.278763,lon:6.982949},
+  {h:15,t:'tree',d:'Baumgruppe',lat:51.278999,lon:6.982353},
+  {h:15,t:'tree',d:'Baum',lat:51.278668,lon:6.983284},
+  {h:15,t:'bunker',d:'Bunker links neben Green 2',lat:51.279857,lon:6.981464},
+  {h:15,t:'bunker',d:'Bunker links neben Green 1',lat:51.279761,lon:6.981524},
+  {h:15,t:'bunker',d:'Bunker links vor Green',lat:51.279691,lon:6.981636},
+  {h:15,t:'bunker',d:'Bunker rechts vor Green',lat:51.279689,lon:6.981933},
+  {h:16,t:'bunker',d:'Bunker links vor Green',lat:51.281771,lon:6.983327},
+  {h:16,t:'tree',d:'Baumgruppe',lat:51.280964,lon:6.981672},
+  {h:16,t:'bunker',d:'Bunker Fairway links',lat:51.281647,lon:6.98186},
+  {h:16,t:'bunker',d:'Bunker rechts Green',lat:51.281655,lon:6.983761},
+  {h:17,t:'bunker',d:'Bunker links unten (ca 80m)',lat:51.280991,lon:6.986731},
+  {h:17,t:'bunker',d:'Bunker rechts Mitte oben 1',lat:51.280471,lon:6.987417},
+  {h:17,t:'bunker',d:'Bunker rechts Mitte unten 1',lat:51.280597,lon:6.987011},
+  {h:17,t:'bunker',d:'Bunker rechts Mitte unten 2',lat:51.280466,lon:6.987045},
+  {h:17,t:'bunker',d:'Bunker rechts Mitte oben 2',lat:51.280518,lon:6.989224},
+  {h:17,t:'bunker',d:'Bunker links vor Green',lat:51.281026,lon:6.990155},
+  {h:17,t:'bunker',d:'Bunker rechts vor Green',lat:51.280866,lon:6.990615},
+  {h:18,t:'bunker',d:'Bunker links Green oben',lat:51.279137,lon:6.997304},
+  {h:18,t:'water',d:'Wasser rechts Green',lat:51.278765,lon:6.997317},
+  {h:18,t:'bunker',d:'Bunker rechts fairway oben',lat:51.279304,lon:6.99568},
+  {h:18,t:'bunker',d:'Bunker rechts Fairway unten',lat:51.279307,lon:6.995215},
+];
+
+const TEES = {
+  1: {gelb:[51.279229,6.998154],blau:[51.279361,6.998417],rot:[51.279607,6.998282],orange:[51.279607,6.998282]},
+  2: {gelb:[51.282448,6.999647],blau:[51.282386,6.999438],rot:[51.282198,6.999175],orange:[51.282188,6.998926]},
+  3: {gelb:[51.280741,6.995831],blau:[51.280771,6.996145],rot:[51.280667,6.996247],orange:[51.280736,6.996518]},
+  4: {gelb:[51.280433,6.998532],blau:[51.280286,6.998178],rot:[51.280392,6.997808],orange:[51.28026,6.9974]},
+  5: {gelb:[51.280181,6.991913],blau:[51.280105,6.991315],rot:[51.280177,6.99111],orange:[51.28026,6.990758]},
+  6: {gelb:[51.28021,6.987288],blau:[51.280243,6.987066],rot:[51.280237,6.986971],orange:[51.280265,6.986623]},
+  7: {gelb:[51.279751,6.984058],blau:[51.279699,6.984396],rot:[51.279543,6.984793],orange:[51.279518,6.985182]},
+  8: {gelb:[51.279612,6.989365],blau:[51.279652,6.989626],rot:[51.279711,6.990032],orange:[51.279717,6.990335]},
+  9: {gelb:[51.279363,6.993829],blau:[51.279329,6.99409],rot:[51.279227,6.994071],orange:[51.279162,6.994349]},
+  10: {gelb:[51.27838,6.994886],blau:[51.2784,6.994478],rot:[51.278348,6.994166],orange:[51.278309,6.99386]},
+  11: {gelb:[51.278594,6.989926],blau:[51.278627,6.989687],rot:[51.278647,6.989382],orange:[51.278637,6.989269]},
+  12: {gelb:[51.278084,6.983192],blau:[51.278084,6.983192],rot:[51.277907,6.98324],orange:[51.277907,6.98324]},
+  13: {gelb:[51.275722,6.984241],blau:[51.275604,6.984069],rot:[51.275411,6.983843],orange:[51.275281,6.983696]},
+  14: {gelb:[51.273399,6.985459],blau:[51.273589,6.984948],rot:[51.273812,6.985067],orange:[51.274057,6.985167]},
+  15: {gelb:[51.277781,6.984831],blau:[51.277853,6.984462],rot:[51.277983,6.984441],orange:[51.278003,6.984392]},
+  16: {gelb:[51.2798,6.981097],blau:[51.2798,6.981097],rot:[51.280237,6.981054],orange:[51.280237,6.981054]},
+  17: {gelb:[51.281141,6.98424],blau:[51.281141,6.984643],rot:[51.281015,6.984954],orange:[51.281026,6.985474]},
+  18: {gelb:[51.279903,6.992596],blau:[51.279937,6.992999],rot:[51.279677,6.993234],orange:[51.27966,6.993732]},
+};
+
+// ═══════════════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════════════
 let cur=0, scores=new Array(18).fill(0), tee='gelb';
@@ -759,56 +872,48 @@ function updateHoleMap() {
     if(fw?.coords?.length>2){const p=L.polygon(fw.coords.map(c=>[c.lat,c.lon]),{color:'#4a9a2a',fillColor:'#4a9a2a',fillOpacity:0.25,weight:1.5}).addTo(holeMap);fairwayPolygons.push(p);}
   }
 
-  // Distanzringe – ausgerichtet nach Spielrichtung
-  const gLL=L.latLng(green[0],green[1]);
-  const latM=1/111320;
-  const lonM=1/(111320*Math.cos(green[0]*Math.PI/180));
+  // // Distanzringe entfernt – Distanz wird numerisch angezeigt
 
-  // Spielrichtung berechnen: vom Green zurück zum Abschlag
-  // Abschlag liegt ca. Loch-Länge vom Green entfernt
-  // Wir nutzen die Himmelsrichtung zwischen benachbarten Greens als Näherung
-  var prevGreen = cur > 0 ? GREEN_COORDS[cur-1] : null;
-  var nextGreen = cur < 17 ? GREEN_COORDS[cur+1] : null;
-  // Richtung Abschlag = grob entgegengesetzt zur Spielrichtung
-  var bearingRad = 0; // Default: Norden
-  if(prevGreen) {
-    // Vom vorherigen Green zum aktuellen Green = Spielrichtung
-    var dlat = green[0] - prevGreen[0];
-    var dlon = green[1] - prevGreen[1];
-    bearingRad = Math.atan2(dlon, dlat); // Winkel der Spielrichtung
-  }
+  // ── HINDERNISSE ─────────────────────────────────────────
+  const holeObstacles = OBSTACLES.filter(function(o){ return o.h === cur+1; });
+  holeObstacles.forEach(function(o){
+    var icon, color;
+    if(o.t==='bunker'){icon='🟨';color='#d4a843';}
+    else if(o.t==='water'){icon='🟦';color='#3a80c0';}
+    else{icon='🌳';color='#2d6b12';}
 
-  [{d:100,c:'#ef4444'},{d:150,c:'#f97316'},{d:200,c:'#3b82f6'}].forEach(function(r){
-    var pts=[];
-    for(var a=0;a<=360;a+=5){
-      var rad=a*Math.PI/180;
-      // Ellipse: schmal quer (35%), lang entlang Spielrichtung (100%)
-      var lngAxis = r.d * latM;      // Längsachse
-      var shrtAxis = r.d * 0.35 * lonM; // Querachse
-      // Rotiere um Spielrichtung
-      var localX = Math.cos(rad) * lngAxis;
-      var localY = Math.sin(rad) * shrtAxis;
-      var rotX = localX * Math.cos(bearingRad) - localY * Math.sin(bearingRad);
-      var rotY = localX * Math.sin(bearingRad) + localY * Math.cos(bearingRad);
-      pts.push([green[0]+rotX, green[1]+rotY]);
+    // Distanz berechnen wenn GPS aktiv
+    var distTxt = '';
+    if(myPos){
+      var d = haversine(myPos[0],myPos[1],o.lat,o.lon);
+      distTxt = d+'m';
     }
-    var poly=L.polygon(pts,{
-      color:r.c,fillColor:r.c,fillOpacity:0.05,
-      weight:1.5,dashArray:'4,5'
-    }).addTo(holeMap);
-    distRings.push(poly);
 
-    // Label seitlich der Ellipse
-    var lblLat = green[0] - Math.sin(bearingRad) * r.d * 0.35 * latM * 1.4;
-    var lblLon = green[1] - Math.cos(bearingRad) * r.d * 0.35 * lonM * 1.4;
-    var lbl=L.marker([lblLat,lblLon],{
-      icon:L.divIcon({
-        html:'<div style="background:'+r.c+';color:#fff;font-size:10px;font-weight:700;padding:2px 5px;border-radius:4px;opacity:0.9;white-space:nowrap">'+r.d+'m</div>',
-        className:'',iconAnchor:[20,8]
-      }),interactive:false
+    var lbl = L.marker([o.lat,o.lon],{
+      icon: L.divIcon({
+        html: '<div style="background:rgba(0,0,0,0.65);color:#fff;font-size:10px;font-weight:700;padding:3px 6px;border-radius:6px;white-space:nowrap;display:flex;align-items:center;gap:3px;backdrop-filter:blur(2px)">'+
+              icon+' <span style="color:#fff">'+distTxt+'</span></div>',
+        className:'',
+        iconAnchor:[30,10]
+      }),
+      interactive:false
     }).addTo(holeMap);
-    distRings.push(lbl);
+    greenMarkers.push(lbl);
   });
+
+  // Abschlag-Marker für aktuelle Farbe einzeichnen
+  var teeData = TEES[cur+1];
+  if(teeData){
+    var teeCoord = teeData[tee] || teeData['gelb'];
+    if(teeCoord && teeCoord[0]){
+      var teeColors = {gelb:'#ffd700',blau:'#3b82f6',rot:'#ef4444',orange:'#f97316'};
+      var teeMarker = L.circleMarker([teeCoord[0],teeCoord[1]],{
+        radius:8, color:'#fff', fillColor:teeColors[tee]||'#ffd700',
+        fillOpacity:1, weight:2.5
+      }).bindTooltip('Abschlag '+tee,{permanent:false}).addTo(holeMap);
+      greenMarkers.push(teeMarker);
+    }
+  }
 
   // Shot-Marker
   const shotPositions=shots[cur];
@@ -1146,6 +1251,7 @@ if(navigator.geolocation){
     myPos=[pos.coords.latitude,pos.coords.longitude];
     document.getElementById('gpsTxt').textContent='Aktiv';
     updateAutoDistance();
+    if(holeMapInited) updateHoleMap();
   },()=>{},{enableHighAccuracy:true,maximumAge:5000});
 }
 
