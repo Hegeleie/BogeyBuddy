@@ -263,10 +263,8 @@ html,body{height:100%;background:#0d1f08;font-family:'DM Sans',sans-serif;}
     </div>
     <div id="authRegisterForm" style="display:none">
       <div class="auth-field"><label>Name</label><input type="text" id="regName" placeholder="Dein Name"/></div>
-      <div class="auth-field"><label>Benutzername</label><input type="text" id="regUsername" placeholder="z.B. yannik_golf" autocapitalize="none"/></div>
       <div class="auth-field"><label>E-Mail</label><input type="email" id="regEmail" placeholder="name@example.com"/></div>
       <div class="auth-field"><label>Passwort</label><input type="password" id="regPw" placeholder="Min. 6 Zeichen"/></div>
-      <div class="auth-field"><label>Handicap-Index</label><input type="number" id="regHcp" placeholder="z.B. 36" min="0" max="54" step="0.1" value="54"/></div>
       <div style="display:flex;align-items:flex-start;gap:8px;margin:10px 0 4px;">
         <input type="checkbox" id="privacyCheck" style="margin-top:3px;flex-shrink:0;width:16px;height:16px;accent-color:#1e4d0a;"/>
         <label for="privacyCheck" style="font-size:11px;color:#888;line-height:1.5;cursor:pointer;">
@@ -318,6 +316,7 @@ html,body{height:100%;background:#0d1f08;font-family:'DM Sans',sans-serif;}
         <button class="map-layer-btn on" id="hlSat" onclick="setHoleLayer('sat')">🛰</button>
         <button class="map-layer-btn" id="hlMap" onclick="setHoleLayer('map')">🗺</button>
         <button class="map-layer-btn" id="hlHyb" onclick="setHoleLayer('hyb')">🔀</button>
+        <button class="map-layer-btn" onclick="recenterMap()" title="Zum Green">⛳</button>
       </div>
     </div>
 
@@ -366,7 +365,7 @@ html,body{height:100%;background:#0d1f08;font-family:'DM Sans',sans-serif;}
 
   <!-- SCORE TAB -->
   <div class="page" id="tab-score">
-    <div class="hcp-bar"><label>Handicap-Index</label><input class="hcp-in" type="number" id="hcpIn" value="54" min="0" max="54" step="0.1" onchange="saveHcp();render()"/></div>
+    <div class="hcp-bar"><label>Handicap-Index</label><input class="hcp-in" type="number" id="hcpIn" value="54" min="0" max="54" onchange="render()"/></div>
     <div class="score-block">
       <div class="sb"><div class="sb-l">Brutto · Loch <span id="hNs">1</span></div><div class="sb-v" id="scV">0</div><div class="sb-s c-gray" id="scS">Kein Schlag</div></div>
       <div class="sb"><div class="sb-l">Stableford</div><div class="sb-v" id="stbV">—</div><div class="sb-s c-gray">Netto-Par: <span id="netP">—</span></div></div>
@@ -413,7 +412,7 @@ html,body{height:100%;background:#0d1f08;font-family:'DM Sans',sans-serif;}
       <div class="social-section">
         <div class="social-ttl">👥 Freunde hinzufügen</div>
         <div class="friend-input-row">
-          <input class="friend-input" type="text" id="friendEmail" placeholder="Benutzername oder E-Mail"/>
+          <input class="friend-input" type="email" id="friendEmail" placeholder="E-Mail des Freundes"/>
           <button class="friend-add-btn" onclick="addFriend()">+ Hinzufügen</button>
         </div>
         <div id="friendsList"></div>
@@ -617,6 +616,7 @@ let myPos=null, flagMarker=null, myMarker=null;
 let gpsMap=null, gpsLayer=null, gpsMapInited=false;
 let holeMap=null, holeLayer=null, holeMapInited=false;
 let distRings=[], greenMarkers=[], fairwayPolygons=[], teeMarkers=[], shotMapMarkers=[];
+let mapUserMoved = false; // Wird true wenn Nutzer die Karte manuell bewegt
 let osmData={greens:[],tees:[],fairways:[]}, osmLoaded=false;
 let shots=Array.from({length:18},function(){return [];}); // [{lat,lon,dist}]
 let currentUser=null, userProfile=null;
@@ -652,24 +652,17 @@ window.doLogin = async function() {
 
 window.doRegister = async function() {
   var name=document.getElementById('regName').value.trim();
-  var username=document.getElementById('regUsername').value.trim().toLowerCase().replace(/[^a-z0-9_]/g,'');
   var email=document.getElementById('regEmail').value.trim();
   var pw=document.getElementById('regPw').value;
-  var hcp=Math.min(54,Math.max(0,parseFloat(document.getElementById('regHcp').value)||54));
   var errEl=document.getElementById('authError');
   if(!name){errEl.textContent='Bitte Namen eingeben';errEl.style.color='#c0392b';return;}
-  if(!username||username.length<3){errEl.textContent='Benutzername mind. 3 Zeichen (Buchstaben, Zahlen, _)';errEl.style.color='#c0392b';return;}
   if(!document.getElementById('privacyCheck').checked){errEl.textContent='Bitte Datenschutzhinweis bestätigen';errEl.style.color='#c0392b';return;}
-  errEl.textContent='Benutzername wird geprüft…';errEl.style.color='#888';
+  errEl.textContent='Konto wird erstellt…';errEl.style.color='#888';
   try {
-    // Check username uniqueness
-    var uSnap = await firebase.firestore().collection('users').where('username','==',username).get();
-    if(!uSnap.empty){errEl.textContent='Benutzername bereits vergeben – bitte anderen wählen';errEl.style.color='#c0392b';return;}
-    errEl.textContent='Konto wird erstellt…';errEl.style.color='#888';
     var cred = await firebase.auth().createUserWithEmailAndPassword(email, pw);
     await cred.user.updateProfile({displayName: name});
     await firebase.firestore().collection('users').doc(cred.user.uid).set({
-      name:name, username:username, email:email, hcp:hcp, createdAt:firebase.firestore.FieldValue.serverTimestamp(), friends:[]
+      name:name, email:email, hcp:54, createdAt:firebase.firestore.FieldValue.serverTimestamp(), friends:[]
     });
   } catch(e) {
     errEl.style.color='#c0392b';
@@ -703,8 +696,7 @@ firebase.auth().onAuthStateChanged(function(user) {
     db.collection('users').doc(user.uid).get().then(function(uSnap) {
       if(uSnap.exists) {
         userProfile = uSnap.data();
-        if(userProfile && userProfile.hcp !== undefined) document.getElementById('hcpIn').value = userProfile.hcp;
-        if(userProfile && userProfile.username) document.getElementById('hdrUser').textContent = '@'+userProfile.username+(userProfile.name?' · '+userProfile.name:'');
+        if(userProfile && userProfile.hcp) document.getElementById('hcpIn').value = userProfile.hcp;
       }
     }).catch(function(e){ console.warn('User data:', e); });
     setTimeout(function(){initHoleMap();loadOSMData();}, 500);
@@ -720,35 +712,22 @@ firebase.auth().onAuthStateChanged(function(user) {
 // SOCIAL / FIREBASE
 // ═══════════════════════════════════════════════════════════
 window.addFriend = async () => {
-  const input = document.getElementById('friendEmail').value.trim();
-  if(!input || !currentUser) return;
+  const email = document.getElementById('friendEmail').value.trim();
+  if(!email || !currentUser) return;
   try {
-    const isEmail = input.includes('@');
-    let snap;
-    if(isEmail) {
-      snap = await db.collection('users').where('email','==',input).get();
-    } else {
-      snap = await db.collection('users').where('username','==',input.toLowerCase()).get();
-    }
-    if(snap.empty) {
-      if(isEmail) {
-        snap = await db.collection('users').where('username','==',input.toLowerCase()).get();
-      } else {
-        snap = await db.collection('users').where('email','==',input).get();
-      }
-    }
-    if(snap.empty){alert('Kein Nutzer gefunden – prüfe Benutzername oder E-Mail');return;}
+    const q = db.collection('users').where('email','==',email);
+    const snap = await q.get();
+    if(snap.empty){alert('Kein Nutzer mit dieser E-Mail gefunden');return;}
     const friendDoc = snap.docs[0];
     const friendId = friendDoc.id;
-    if(friendId === currentUser.uid){alert('Das bist du selbst 😄');return;}
     const friendName = friendDoc.data().name;
-    const friendUsername = friendDoc.data().username ? ('@'+friendDoc.data().username) : '';
     const mySnap = await db.collection('users').doc(currentUser.uid).get();
-    const friends = mySnap.exists ? (mySnap.data().friends||[]) : [];
+    const mySnap2 = await db.collection('users').doc(currentUser.uid).get();
+    const friends = mySnap2.exists ? (mySnap2.data().friends||[]) : [];
     if(friends.includes(friendId)){alert('Bereits in deiner Freundesliste');return;}
     await db.collection('users').doc(currentUser.uid).set({friends:[...friends,friendId]},{merge:true});
     document.getElementById('friendEmail').value='';
-    alert(friendName+(friendUsername?' '+friendUsername:'')+' hinzugefügt! 🏌️');
+    alert(friendName+' hinzugefügt! 🏌️');
     loadSocialData();
   } catch(e){alert('Fehler: '+e.message);}
 };
@@ -777,7 +756,7 @@ async function loadLeaderboard() {
     return `<div class="lb-card">
       <div class="lb-rank ${rankCls}">${i+1}</div>
       <div class="lb-info">
-        <div class="lb-name">${r.userName||'Unbekannt'}${r.userUsername?' <span style="font-size:11px;color:#aaa;font-weight:400">@'+r.userUsername+'</span>':''}</div>
+        <div class="lb-name">${r.userName||'Unbekannt'}</div>
         <div class="lb-meta">${r.date||''} · ${r.totalBrutto} Brutto · ${dT>=0?'+':''}${dT}</div>
       </div>
       <div class="lb-pts">${r.totalStab}</div>
@@ -802,7 +781,7 @@ async function loadFriends() {
       <div class="user-avatar">${initials}</div>
       <div class="user-info">
         <div class="user-name">${f.name}</div>
-        <div class="user-meta">${f.username?'@'+f.username+' · ':''}HCP ${f.hcp||'—'}</div>
+        <div class="user-meta">HCP ${f.hcp||'—'}</div>
       </div>
     </div>`;
   }));
@@ -874,9 +853,12 @@ function myPosIcon() {
 
 function initHoleMap() {
   if(holeMapInited) return; holeMapInited=true;
+  mapUserMoved = false;
   const coord = GREEN_COORDS[cur];
-  holeMap = L.map('holeMap',{zoomControl:false,attributionControl:false,dragging:true,scrollWheelZoom:false}).setView(coord,17);
+  holeMap = L.map('holeMap',{zoomControl:false,attributionControl:false,dragging:true,scrollWheelZoom:true}).setView(coord,17);
   holeLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:20}).addTo(holeMap);
+  // Track wenn Nutzer die Karte selbst bewegt – dann kein Auto-Zentrieren mehr
+  holeMap.on('dragstart zoomstart', function() { mapUserMoved = true; });
   holeMap.on('click', e=>{
     if(flagMarker) holeMap.removeLayer(flagMarker);
     flagMarker = L.marker(e.latlng,{icon:pinIcon()}).addTo(holeMap);
@@ -955,7 +937,7 @@ function updateHoleMap() {
     shotMapMarkers.push(line);
   }
 
-  holeMap.setView(green,17);
+  if(!mapUserMoved) holeMap.setView(green,17);
   updateAutoDistance();
 }
 
@@ -967,6 +949,11 @@ window.setHoleLayer = (t)=>{
   else if(t==='map') holeLayer=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(holeMap);
   else{const s=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:20});const l=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,opacity:0.45});holeLayer=L.layerGroup([s,l]).addTo(holeMap);}
   document.getElementById('osmBadge').textContent = t==='sat'?'🛰 Satellit':t==='map'?'🗺 Karte':'🔀 Hybrid';
+};
+
+window.recenterMap = function() {
+  mapUserMoved = false;
+  if(holeMap) holeMap.setView(GREEN_COORDS[cur], 17);
 };
 
 async function loadOSMData() {
@@ -1126,10 +1113,6 @@ window.setTee = (t)=>{
 };
 
 function getLen(i){return tee==='gelb'?HOLES[i].g:tee==='blau'?HOLES[i].b:tee==='orange'?(HOLES[i].o||HOLES[i].r):HOLES[i].r;}
-function saveHcp(){
-  const hcp=Math.min(54,Math.max(0,parseFloat(document.getElementById('hcpIn').value)||54));
-  if(currentUser) db.collection('users').doc(currentUser.uid).set({hcp:hcp},{merge:true}).catch(e=>console.warn('HCP save:',e));
-}
 function getHcp(){return Math.min(54,Math.max(0,parseFloat(document.getElementById('hcpIn').value)||54));}
 function extraShots(i,hcp){const base=Math.floor(hcp/18),rem=hcp%18;return base+(HOLES[i].si<=rem?1:0);}
 function stableford(b,i,hcp){if(!b)return 0;const np=HOLES[i].par+extraShots(i,hcp),d=b-np;return d<=-2?4:d===-1?3:d===0?2:d===1?1:0;}
@@ -1138,6 +1121,7 @@ window.chg = function(d){scores[cur]=Math.max(0,scores[cur]+d);render();};
 
 window.go = function(dir){
   cur=Math.max(0,Math.min(17,cur+dir));
+  mapUserMoved = false; // Karte beim Lochwechsel wieder aufs Green zentrieren
   if(flagMarker&&holeMap){holeMap.removeLayer(flagMarker);flagMarker=null;}
   document.getElementById('distBig').textContent='—';
   document.getElementById('mapDist').textContent='—';
@@ -1228,7 +1212,6 @@ window.saveRound = async () => {
     await db.collection('rounds').add({
       userId:currentUser.uid,
       userName:currentUser.displayName||currentUser.email,
-      userUsername:userProfile&&userProfile.username ? userProfile.username : null,
       date:new Date().toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}),
       hcp,tee,scores:[...scores],totalBrutto:tB,totalStab:tS,played,
       shots:shots.map(h=>h.map(s=>({lat:s.lat,lon:s.lon,dist:s.dist,club:s.club||''}))),
