@@ -64,7 +64,7 @@ html,body{height:100%;background:#0d1f08;font-family:'DM Sans',sans-serif;}
 .map-badge{background:rgba(0,0,0,0.7);color:#fff;border-radius:8px;padding:4px 10px;font-size:11px;font-weight:600;backdrop-filter:blur(4px);}
 .map-badge.green{background:rgba(30,77,10,0.85);}
 .map-layer-btns{position:absolute;top:8px;right:8px;z-index:1000;display:flex;flex-direction:column;gap:3px;}
-.map-layer-btn{background:rgba(255,255,255,0.92);border:none;border-radius:6px;padding:5px 8px;font-size:11px;cursor:pointer;font-weight:600;color:#333;touch-action:manipulation;}
+.map-layer-btn{background:rgba(255,255,255,0.92);border:none;border-radius:6px;padding:5px 8px;font-size:11px;cursor:pointer;font-weight:600;color:#333;}
 .map-layer-btn.on{background:#1e4d0a;color:#fff;}
 
 /* SHOT TRACKING */
@@ -87,7 +87,7 @@ html,body{height:100%;background:#0d1f08;font-family:'DM Sans',sans-serif;}
 /* TEES */
 .tee-bar{display:flex;gap:6px;padding:8px 12px;background:#f8f8f4;border-bottom:1px solid #eee;align-items:center;}
 .tee-lbl{font-size:11px;color:#999;flex-shrink:0;}
-.tee-btn{padding:5px 12px;border-radius:14px;border:1.5px solid transparent;font-size:12px;font-weight:700;cursor:pointer;background:#fff;font-family:'DM Sans',sans-serif;touch-action:manipulation;}
+.tee-btn{padding:5px 12px;border-radius:14px;border:1.5px solid transparent;font-size:12px;font-weight:700;cursor:pointer;background:#fff;font-family:'DM Sans',sans-serif;}
 .tee-btn.gelb{border-color:#c8a200;color:#7a6000;background:#fffde6;}
 .tee-btn.blau{border-color:#1a5fa5;color:#0c3d6e;background:#e8f0fb;}
 .tee-btn.rot{border-color:#b02020;color:#7a1010;background:#fce8e8;}
@@ -132,11 +132,11 @@ html,body{height:100%;background:#0d1f08;font-family:'DM Sans',sans-serif;}
 .counter-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #eee;}
 .c-lbl{font-size:13px;color:#999;}
 .c-ctrl{display:flex;align-items:center;gap:16px;}
-.c-btn{width:48px;height:48px;border-radius:50%;border:1.5px solid #e0e0d8;background:#fff;font-size:28px;cursor:pointer;color:#333;display:flex;align-items:center;justify-content:center;touch-action:manipulation;}
+.c-btn{width:48px;height:48px;border-radius:50%;border:1.5px solid #e0e0d8;background:#fff;font-size:28px;cursor:pointer;color:#333;display:flex;align-items:center;justify-content:center;}
 .c-btn:active{background:#f0f0ec;transform:scale(0.94);}
 .c-num{font-size:40px;font-weight:700;min-width:44px;text-align:center;color:#1a1a1a;font-family:'DM Mono',monospace;}
 .nav-row{display:flex;gap:8px;padding:10px 14px;border-bottom:1px solid #eee;}
-.nav-b{flex:1;padding:12px;border-radius:10px;border:1.5px solid #e0e0d8;background:#fff;color:#555;font-size:13px;cursor:pointer;text-align:center;font-weight:600;font-family:'DM Sans',sans-serif;touch-action:manipulation;}
+.nav-b{flex:1;padding:12px;border-radius:10px;border:1.5px solid #e0e0d8;background:#fff;color:#555;font-size:13px;cursor:pointer;text-align:center;font-weight:600;font-family:'DM Sans',sans-serif;}
 .nav-b.primary{background:#0d1f08;border:none;color:#c8e6a0;font-weight:700;}
 .hole-dots{display:flex;gap:4px;padding:10px 14px;flex-wrap:wrap;}
 .hdot{width:16px;height:16px;border-radius:50%;border:1.5px solid #e0e0d8;background:#f5f5f0;cursor:pointer;}
@@ -316,7 +316,6 @@ html,body{height:100%;background:#0d1f08;font-family:'DM Sans',sans-serif;}
         <button class="map-layer-btn on" id="hlSat" onclick="setHoleLayer('sat')">🛰</button>
         <button class="map-layer-btn" id="hlMap" onclick="setHoleLayer('map')">🗺</button>
         <button class="map-layer-btn" id="hlHyb" onclick="setHoleLayer('hyb')">🔀</button>
-        <button class="map-layer-btn" onclick="recenterMap()" title="Zum Green">⛳</button>
       </div>
     </div>
 
@@ -365,7 +364,7 @@ html,body{height:100%;background:#0d1f08;font-family:'DM Sans',sans-serif;}
 
   <!-- SCORE TAB -->
   <div class="page" id="tab-score">
-    <div class="hcp-bar"><label>Handicap-Index</label><input class="hcp-in" type="number" id="hcpIn" value="54" min="0" max="54" step="0.1" onchange="saveHcp();render()"/></div>
+    <div class="hcp-bar"><label>Handicap-Index</label><input class="hcp-in" type="number" id="hcpIn" value="54" min="0" max="54" onchange="render()"/></div>
     <div class="score-block">
       <div class="sb"><div class="sb-l">Brutto · Loch <span id="hNs">1</span></div><div class="sb-v" id="scV">0</div><div class="sb-s c-gray" id="scS">Kein Schlag</div></div>
       <div class="sb"><div class="sb-l">Stableford</div><div class="sb-v" id="stbV">—</div><div class="sb-s c-gray">Netto-Par: <span id="netP">—</span></div></div>
@@ -388,7 +387,6 @@ html,body{height:100%;background:#0d1f08;font-family:'DM Sans',sans-serif;}
       <div class="tot"><div class="tot-l">Stableford</div><div class="tot-v" id="totS">0</div><div class="tot-s">Punkte gesamt</div></div>
     </div>
     <div class="reset-wrap"><button class="reset-btn" onclick="resetRound()">🔄 Runde zurücksetzen</button></div>
-    <button class="save-btn" onclick="saveRound()">💾 Runde speichern & teilen</button>
   </div>
 
   <!-- CARD TAB -->
@@ -413,7 +411,7 @@ html,body{height:100%;background:#0d1f08;font-family:'DM Sans',sans-serif;}
       <div class="social-section">
         <div class="social-ttl">👥 Freunde hinzufügen</div>
         <div class="friend-input-row">
-          <input class="friend-input" type="text" id="friendEmail" placeholder="Benutzername oder E-Mail" autocapitalize="none"/>
+          <input class="friend-input" type="email" id="friendEmail" placeholder="E-Mail des Freundes"/>
           <button class="friend-add-btn" onclick="addFriend()">+ Hinzufügen</button>
         </div>
         <div id="friendsList"></div>
@@ -617,7 +615,6 @@ let myPos=null, flagMarker=null, myMarker=null;
 let gpsMap=null, gpsLayer=null, gpsMapInited=false;
 let holeMap=null, holeLayer=null, holeMapInited=false;
 let distRings=[], greenMarkers=[], fairwayPolygons=[], teeMarkers=[], shotMapMarkers=[];
-let mapUserMoved = false; // Wird true wenn Nutzer die Karte manuell bewegt
 let osmData={greens:[],tees:[],fairways:[]}, osmLoaded=false;
 let shots=Array.from({length:18},function(){return [];}); // [{lat,lon,dist}]
 let currentUser=null, userProfile=null;
@@ -754,13 +751,11 @@ async function loadLeaderboard() {
     const r=d.data();
     const rankCls = i<3?ranks[i]:'';
     const dT = r.totalBrutto-72;
-    const scoreSpans=(r.scores||[]).filter(s=>s>0).length>0?(r.scores||[]).map((s,si)=>{const d=s-(HOLES[si]?.par||4);const c=d<=-2?'eagle':d===-1?'birdie':d===1?'bogey':d>=2?'dbl':'';return`<span class="${c}" style="display:inline-block;min-width:20px;text-align:center;margin:1px;font-size:10px;border-radius:3px;padding:1px 2px">${s||'·'}</span>`;}).join(''):'';
-    return `<div class="lb-card" style="flex-wrap:wrap;">
+    return `<div class="lb-card">
       <div class="lb-rank ${rankCls}">${i+1}</div>
-      <div class="lb-info" style="flex:1;">
+      <div class="lb-info">
         <div class="lb-name">${r.userName||'Unbekannt'}</div>
         <div class="lb-meta">${r.date||''} · ${r.totalBrutto} Brutto · ${dT>=0?'+':''}${dT}</div>
-        ${scoreSpans?`<div style="margin-top:4px;cursor:pointer;" onclick="this.nextElementSibling.classList.toggle('open')" class="r-more">Details ▾</div><div class="r-detail">${scoreSpans}</div>`:''}
       </div>
       <div class="lb-pts">${r.totalStab}</div>
     </div>`;
@@ -780,63 +775,37 @@ async function loadFriends() {
     if(!fSnap.exists) return null;
     const f = fSnap.data();
     const initials = (f.name||'?').split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
-    // Gegenseitigkeit prüfen
-    const theirFriends = f.friends || [];
-    const isMutual = theirFriends.includes(currentUser.uid);
-    let lastRoundHtml = '';
-    if(isMutual) {
-      try {
-        const rSnap = await db.collection('rounds').where('userId','==',fid).orderBy('createdAt','desc').limit(1).get();
-        if(!rSnap.empty) {
-          const r = rSnap.docs[0].data();
-          const dT = r.totalBrutto - 72;
-          lastRoundHtml = '<div style="font-size:11px;color:#aaa;margin-top:3px;">'+(r.date||'')+' &middot; <span style="color:#1e4d0a;font-weight:700;">'+r.totalStab+' Pkt</span> &middot; '+(dT>=0?'+':'')+dT+' zum Par</div>';
-        }
-      } catch(e){}
-    }
-    const pendingBadge = !isMutual ? '<span style="font-size:10px;background:#fff3cd;color:#856404;border-radius:6px;padding:2px 7px;margin-left:6px;">⏳ Ausstehend</span>' : '';
-    return '<div class="user-card"><div class="user-avatar" style="opacity:'+(isMutual?'1':'0.5')+'">'+initials+'</div><div class="user-info"><div class="user-name">'+f.name+pendingBadge+'</div><div class="user-meta">'+(f.username?'@'+f.username+' &middot; ':'')+' HCP '+(f.hcp||'—')+'</div>'+lastRoundHtml+'</div></div>';
+    return `<div class="user-card">
+      <div class="user-avatar">${initials}</div>
+      <div class="user-info">
+        <div class="user-name">${f.name}</div>
+        <div class="user-meta">HCP ${f.hcp||'—'}</div>
+      </div>
+    </div>`;
   }));
   fl.innerHTML = items.filter(Boolean).join('');
 }
 
-async function loadFeed(showAll=false) {
+async function loadFeed() {
   if(!currentUser) return;
   const mySnap = await db.collection('users').doc(currentUser.uid).get();
-  const myFriends = mySnap.exists ? (mySnap.data().friends||[]) : [];
-
-  // Nur gegenseitige Freunde: beide müssen sich gegenseitig geaddet haben
-  const mutualFriends = [];
-  for(const fid of myFriends) {
-    try {
-      const fSnap = await db.collection('users').doc(fid).get();
-      const theirFriends = fSnap.exists ? (fSnap.data().friends||[]) : [];
-      if(theirFriends.includes(currentUser.uid)) mutualFriends.push(fid);
-    } catch(e){}
-  }
-  const uids = [currentUser.uid, ...mutualFriends];
+  const friends = mySnap.exists ? (mySnap.data().friends||[]) : [];
+  const uids = [currentUser.uid, ...friends];
 
   const feed = document.getElementById('feedRounds');
-  feed.innerHTML = '<div style="text-align:center;color:#bbb;padding:20px;font-size:13px;">Wird geladen…</div>';
   let allRounds = [];
 
-  for(const uid of uids.slice(0,10)) {
-    try {
-      const snap = await db.collection('rounds').where('userId','==',uid).orderBy('createdAt','desc').limit(showAll?5:1).get();
-      snap.docs.forEach(d=>allRounds.push({id:d.id,...d.data()}));
-    } catch(e) {
-      console.warn('Feed query failed for uid '+uid+':', e.message);
-      if(e.message && e.message.includes('permission')) {
-        console.warn('>>> Firestore Security Rules blockieren Lesezugriff auf Runden anderer Nutzer!');
-      }
-    }
+  for(const uid of uids.slice(0,5)) {
+    const q = db.collection('rounds').where('userId','==',uid).orderBy('createdAt','desc').limit(3);
+    const snap = await q.get();
+    snap.docs.forEach(d=>allRounds.push({id:d.id,...d.data()}));
   }
 
   allRounds.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
 
-  if(!allRounds.length){feed.innerHTML='<div style="text-align:center;color:#bbb;padding:20px;font-size:13px;">Noch keine Runden – spiel eine Runde und teile sie!</div>';return;}
+  if(!allRounds.length){feed.innerHTML='<div style="text-align:center;color:#bbb;padding:20px;font-size:13px;">Noch keine Runden</div>';return;}
 
-  feed.innerHTML = allRounds.map((r,idx)=>{
+  feed.innerHTML = allRounds.slice(0,10).map((r,idx)=>{
     const dT=r.totalBrutto-72;
     const isMe = r.userId===currentUser.uid;
     const spans=(r.scores||[]).map((s,i)=>{const d=s-(HOLES[i]?.par||4);const c=d<=-2?'eagle':d===-1?'birdie':d===1?'bogey':d>=2?'dbl':'';return`<span class="${c}" style="display:inline-block;min-width:22px;text-align:center;margin:1px;font-size:11px;border-radius:3px;padding:1px 2px">${s||'·'}</span>`;}).join('');
@@ -849,7 +818,7 @@ async function loadFeed(showAll=false) {
       <div class="r-detail" id="fd${idx}">${spans}</div>
       <div class="r-more" onclick="document.getElementById('fd${idx}').classList.toggle('open')">Details ▾</div>
     </div>`;
-  }).join('') + (!showAll ? `<button onclick="loadFeed(true)" style="display:block;width:calc(100% - 28px);margin:8px 14px 14px;padding:10px;background:#f8f8f4;color:#555;border:1.5px solid #eee;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;touch-action:manipulation;">Mehr Runden laden ↓</button>` : '');
+  }).join('');
 }
 
 window.deleteRound = async (id) => {
@@ -882,20 +851,21 @@ function myPosIcon() {
 
 function initHoleMap() {
   if(holeMapInited) return; holeMapInited=true;
-  mapUserMoved = false;
   const coord = GREEN_COORDS[cur];
-  holeMap = L.map('holeMap',{zoomControl:false,attributionControl:false,dragging:true,scrollWheelZoom:true}).setView(coord,17);
+  holeMap = L.map('holeMap',{zoomControl:false,attributionControl:false,dragging:true,scrollWheelZoom:false}).setView(coord,17);
   holeLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:20}).addTo(holeMap);
-  // Track wenn Nutzer die Karte selbst bewegt – dann kein Auto-Zentrieren mehr
-  holeMap.on('dragstart', function() { mapUserMoved = true; });
-  holeMap.on('zoomstart', function(e) {
-    // Nur bei echtem User-Zoom (nicht bei programmatischem setView)
-    if(e.originalEvent) mapUserMoved = true;
-  });
-  holeMap.on('click', e=>{
+  holeMap.on('click', function(e){
     if(flagMarker) holeMap.removeLayer(flagMarker);
     flagMarker = L.marker(e.latlng,{icon:pinIcon()}).addTo(holeMap);
-    if(myPos) calcDist(e.latlng);
+    // Sofort frische GPS-Position holen für schnelle Distanz
+    if(navigator.geolocation){
+      navigator.geolocation.getCurrentPosition(function(pos){
+        myPos=[pos.coords.latitude,pos.coords.longitude];
+        document.getElementById('gpsTxt').textContent='Aktiv';
+        calcDist(e.latlng);
+      }, function(){ if(myPos) calcDist(e.latlng); },
+      {enableHighAccuracy:true,timeout:4000,maximumAge:0});
+    } else if(myPos) calcDist(e.latlng);
   });
 }
 
@@ -956,6 +926,20 @@ function updateHoleMap() {
     }
   }
 
+  // Meine GPS-Position als blauer Punkt
+  if(myPos){
+    var myDot = L.circleMarker(myPos,{
+      radius:8, color:'#fff', fillColor:'#3b82f6',
+      fillOpacity:1, weight:2.5,
+    }).addTo(holeMap);
+    greenMarkers.push(myDot);
+    var myAcc = L.circle(myPos,{
+      radius:10, color:'#3b82f6', fillColor:'#3b82f6',
+      fillOpacity:0.15, weight:1
+    }).addTo(holeMap);
+    greenMarkers.push(myAcc);
+  }
+
   // Shot-Marker
   const shotPositions=shots[cur];
   shotPositions.forEach((s,i)=>{
@@ -970,7 +954,7 @@ function updateHoleMap() {
     shotMapMarkers.push(line);
   }
 
-  if(!mapUserMoved) holeMap.setView(green,17);
+  holeMap.setView(green,17);
   updateAutoDistance();
 }
 
@@ -982,11 +966,6 @@ window.setHoleLayer = (t)=>{
   else if(t==='map') holeLayer=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(holeMap);
   else{const s=L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{maxZoom:20});const l=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,opacity:0.45});holeLayer=L.layerGroup([s,l]).addTo(holeMap);}
   document.getElementById('osmBadge').textContent = t==='sat'?'🛰 Satellit':t==='map'?'🗺 Karte':'🔀 Hybrid';
-};
-
-window.recenterMap = function() {
-  mapUserMoved = false;
-  if(holeMap) holeMap.setView(GREEN_COORDS[cur], 17);
 };
 
 async function loadOSMData() {
@@ -1034,7 +1013,7 @@ function initGpsMap() {
       else myMarker.setLatLng(ll);
       if(flagMarker) calcDist(flagMarker.getLatLng());
       updateAutoDistance();
-    },()=>{document.getElementById('gpsTxt').textContent='Kein GPS';},{enableHighAccuracy:true,maximumAge:3000});
+    },()=>{document.getElementById('gpsTxt').textContent='Kein GPS';},{enableHighAccuracy:true,maximumAge:0,timeout:10000});
   }
 }
 
@@ -1154,15 +1133,21 @@ window.chg = function(d){scores[cur]=Math.max(0,scores[cur]+d);render();};
 
 window.go = function(dir){
   cur=Math.max(0,Math.min(17,cur+dir));
-  mapUserMoved = false; // Karte beim Lochwechsel wieder aufs Green zentrieren
   if(flagMarker&&holeMap){holeMap.removeLayer(flagMarker);flagMarker=null;}
-  document.getElementById('distBig').textContent='—';
-  document.getElementById('mapDist').textContent='—';
-  var mh=document.getElementById('mapHint');
-  if(mh) mh.textContent='⛳ Karte antippen um Fahnenposition zu setzen';
   renderShotList();
   render();
   updateHoleMap();
+  // Green-Mitte als Standard-Fahnenposition setzen
+  setTimeout(function(){
+    if(!holeMap) return;
+    var green = GREEN_COORDS[cur];
+    var gLL = L.latLng(green[0],green[1]);
+    if(flagMarker) holeMap.removeLayer(flagMarker);
+    flagMarker = L.marker(gLL,{icon:pinIcon('#f97316')}).addTo(holeMap);
+    if(myPos) calcDist(gLL);
+    var mh=document.getElementById('mapHint');
+    if(mh) mh.textContent='📍 Green-Mitte · Antippen zum Präzisieren';
+  }, 400);
 };
 var go = window.go;
 
@@ -1247,7 +1232,7 @@ window.saveRound = async () => {
       userName:currentUser.displayName||currentUser.email,
       date:new Date().toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}),
       hcp,tee,scores:[...scores],totalBrutto:tB,totalStab:tS,played,
-      shots:shots.map(h=>h.map(s=>({lat:s.lat,lon:s.lon,dist:s.dist,club:s.club||''}))).map(h=>JSON.stringify(h)),
+      shots:shots.map(h=>h.map(s=>({lat:s.lat,lon:s.lon,dist:s.dist,club:s.club||''}))),
       createdAt:firebase.firestore.FieldValue.serverTimestamp(),
     });
     alert('Runde gespeichert & geteilt! 🏌️');
@@ -1299,7 +1284,7 @@ if(navigator.geolocation){
     document.getElementById('gpsTxt').textContent='Aktiv';
     updateAutoDistance();
     if(holeMapInited) updateHoleMap();
-  },()=>{},{enableHighAccuracy:true,maximumAge:5000});
+  },()=>{},{enableHighAccuracy:true,maximumAge:0,timeout:10000});
 }
 
 render();
