@@ -301,6 +301,7 @@ html,body{height:100%;background:#0d1f08;font-family:'DM Sans',sans-serif;}
     <button class="tab" onclick="showTab('score')">📊 Score</button>
     <button class="tab" onclick="showTab('card')">📋 Karte</button>
     <button class="tab" onclick="showTab('social')">👥 Freunde</button>
+  <button class="tab" onclick="showTab('match')">⚔️ Match</button>
   </div>
 
   <!-- HOLE TAB -->
@@ -1110,11 +1111,12 @@ window.setClub = function(i,v){ shots[cur][i].club=v; };
 // TABS
 // ═══════════════════════════════════════════════════════════
 window.showTab = (t)=>{
-  const tabs=['hole','score','card','social'];
+  const tabs=['hole','score','card','social','match'];
   document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('on',tabs[i]===t));
   document.querySelectorAll('.page').forEach((el,i)=>el.classList.toggle('on','tab-'+tabs[i]==='tab-'+t));
   if(t==='hole'){setTimeout(function(){if(holeMap)holeMap.invalidateSize();},80);}
   if(t==='social'){loadSocialData();}
+  if(t==='match'){loadMatchFriends();}
 };
 
 window.setTee = (t)=>{
@@ -1273,6 +1275,194 @@ window.deleteAccount = async () => {
       alert('Fehler: '+e.message);
     }
   }
+};
+
+
+// ═══════════════════════════════════════════════════════════
+// MATCHPLAY
+// ═══════════════════════════════════════════════════════════
+let matchCur = 0;
+let matchScores = Array.from({length:18}, function(){ return {p1:0,p2:0}; });
+let matchOpponent = {name:'Gegner', hcp:18};
+
+function matchVorgabe(hcp, si) {
+  var base = Math.floor(hcp/18), rem = hcp%18;
+  return base + (si <= rem ? 1 : 0);
+}
+
+function matchNettoScore(raw, hcp, si) {
+  if(!raw) return null;
+  return raw - matchVorgabe(hcp, si);
+}
+
+function matchLochWinner(i) {
+  var s = matchScores[i];
+  if(!s.p1 || !s.p2) return null;
+  var hcpMe = getHcp();
+  var hcpOpp = matchOpponent.hcp;
+  var si = HOLES[i].si;
+  // Vorgabe-Differenz: Niedrigstes HCP spielt scratch
+  var diffMe = matchVorgabe(hcpMe, si);
+  var diffOpp = matchVorgabe(hcpOpp, si);
+  var n1 = s.p1 - diffMe;
+  var n2 = s.p2 - diffOpp;
+  if(n1 < n2) return 'p1';
+  if(n2 < n1) return 'p2';
+  return 'halved';
+}
+
+function matchCalcStand() {
+  var p1w=0, p2w=0;
+  for(var i=0; i<18; i++) {
+    var w = matchLochWinner(i);
+    if(w==='p1') p1w++;
+    else if(w==='p2') p2w++;
+  }
+  return {p1:p1w, p2:p2w};
+}
+
+window.startMatch = function() {
+  var name = document.getElementById('matchOpponentName').value.trim();
+  var hcp = parseFloat(document.getElementById('matchOpponentHcp').value) || 18;
+  if(!name) { alert('Bitte Gegnernamen eingeben'); return; }
+  matchOpponent = {name:name, hcp:hcp};
+  matchScores = Array.from({length:18}, function(){ return {p1:0,p2:0}; });
+  matchCur = 0;
+  document.getElementById('match-setup').style.display = 'none';
+  document.getElementById('match-game').style.display = 'block';
+  // Update player names
+  var myName = currentUser ? (currentUser.displayName||'Ich') : 'Ich';
+  ['matchP1Name','matchP1Label','scP1Head'].forEach(function(id){ document.getElementById(id).textContent=myName; });
+  ['matchP2Name','matchP2Label','scP2Head'].forEach(function(id){ document.getElementById(id).textContent=name; });
+  renderMatch();
+};
+
+window.matchChg = function(p, d) {
+  matchScores[matchCur][p] = Math.max(0, matchScores[matchCur][p]+d);
+  renderMatch();
+};
+
+window.matchGo = function(dir) {
+  matchCur = Math.max(0, Math.min(17, matchCur+dir));
+  renderMatch();
+};
+
+window.resetMatch = function() {
+  if(!confirm('Match zurücksetzen?')) return;
+  matchScores = Array.from({length:18}, function(){ return {p1:0,p2:0}; });
+  matchCur = 0;
+  document.getElementById('match-setup').style.display = 'block';
+  document.getElementById('match-game').style.display = 'none';
+};
+
+function renderMatch() {
+  var h = HOLES[matchCur];
+  var s = matchScores[matchCur];
+  var hcpMe = getHcp();
+
+  document.getElementById('matchCurHole').textContent = matchCur+1;
+  document.getElementById('matchHoleInfo').textContent = 'Loch '+(matchCur+1)+' · Par '+h.par+' · SI '+h.si;
+  document.getElementById('matchS1').textContent = s.p1 || 0;
+  document.getElementById('matchS2').textContent = s.p2 || 0;
+
+  // Vorgabe-Info
+  var vMe = matchVorgabe(hcpMe, h.si);
+  var vOpp = matchVorgabe(matchOpponent.hcp, h.si);
+  var diff = vMe - vOpp;
+  var vInfo = '';
+  if(diff > 0) vInfo = 'Du bekommst +'+diff+' Vorgabeschlag'+(diff>1?'läge':'');
+  else if(diff < 0) vInfo = matchOpponent.name+' bekommt +'+Math.abs(diff)+' Vorgabeschlag'+(Math.abs(diff)>1?'läge':'');
+  else vInfo = 'Gleiches Vorgabe-Level';
+  document.getElementById('matchVorgabeInfo').textContent = vInfo;
+
+  // Loch-Ergebnis
+  var w = matchLochWinner(matchCur);
+  var res = document.getElementById('matchLochResult');
+  if(!w) { res.textContent='—'; res.style.background='var(--color-background-secondary)'; res.style.color='var(--color-text-secondary)'; }
+  else if(w==='p1') { res.textContent='Gewonnen ✓'; res.style.background='var(--color-background-success)'; res.style.color='var(--color-text-success)'; }
+  else if(w==='p2') { res.textContent='Verloren ✗'; res.style.background='var(--color-background-danger)'; res.style.color='var(--color-text-danger)'; }
+  else { res.textContent='Geteilt ½'; res.style.background='var(--color-background-secondary)'; res.style.color='var(--color-text-secondary)'; }
+
+  // Stand
+  var st = matchCalcStand();
+  document.getElementById('matchP1Holes').textContent = st.p1;
+  document.getElementById('matchP2Holes').textContent = st.p2;
+  var badge = document.getElementById('matchStandBadge');
+  var diff2 = st.p1 - st.p2;
+  if(diff2 > 0) { badge.textContent=diff2+' UP'; badge.style.background='#7ac455'; badge.style.color='#0d1f08'; }
+  else if(diff2 < 0) { badge.textContent=Math.abs(diff2)+' DOWN'; badge.style.background='#ef4444'; badge.style.color='#fff'; }
+  else { badge.textContent='ALL SQUARE'; badge.style.background='rgba(255,255,255,0.15)'; badge.style.color='rgba(255,255,255,0.8)'; }
+
+  // Dots
+  var dotsEl = document.getElementById('matchDots');
+  dotsEl.innerHTML = '';
+  for(var i=0; i<18; i++) {
+    var dot = document.createElement('div');
+    var dw = matchLochWinner(i);
+    dot.style.cssText = 'width:15px;height:15px;border-radius:50%;cursor:pointer;border:1.5px solid var(--color-border-secondary);transition:transform 0.1s;';
+    if(i===matchCur) dot.style.background='#1e4d0a';
+    else if(dw==='p1') dot.style.background='#7ac455';
+    else if(dw==='p2') dot.style.background='#ef4444';
+    else if(dw==='halved') dot.style.background='#888';
+    else dot.style.background='var(--color-background-secondary)';
+    dot.onclick = (function(idx){ return function(){ matchCur=idx; renderMatch(); }; })(i);
+    dotsEl.appendChild(dot);
+  }
+
+  // Scorecard
+  var tb = document.getElementById('matchScBody');
+  var won=0, lost=0, halved=0;
+  tb.innerHTML = matchScores.map(function(sc, i) {
+    var dw = matchLochWinner(i);
+    var vMe = matchVorgabe(hcpMe, HOLES[i].si);
+    var vOpp = matchVorgabe(matchOpponent.hcp, HOLES[i].si);
+    var diff3 = vMe - vOpp;
+    var vgbTxt = diff3>0?'+'+diff3:diff3<0?String(diff3):'=';
+    var ergCls='', ergTxt='—';
+    if(dw==='p1'){ergTxt='✓';ergCls='color:var(--color-text-success);font-weight:500';won++;}
+    else if(dw==='p2'){ergTxt='✗';ergCls='color:var(--color-text-danger)';lost++;}
+    else if(dw==='halved'){ergTxt='½';ergCls='color:var(--color-text-secondary)';halved++;}
+    var bg = i===matchCur?'background:var(--color-background-secondary);':'';
+    return '<tr style="'+bg+'"><td style="padding:4px 2px;text-align:center;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)">'+(i+1)+'</td>'+
+      '<td style="padding:4px 2px;text-align:center;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary)">'+vgbTxt+'</td>'+
+      '<td style="padding:4px 2px;text-align:center;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)">'+(sc.p1||'—')+'</td>'+
+      '<td style="padding:4px 2px;text-align:center;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-primary)">'+(sc.p2||'—')+'</td>'+
+      '<td style="padding:4px 2px;text-align:center;border-bottom:0.5px solid var(--color-border-tertiary);'+ergCls+'">'+ergTxt+'</td></tr>';
+  }).join('');
+  document.getElementById('matchSumWon').textContent = won;
+  document.getElementById('matchSumHalved').textContent = halved;
+  document.getElementById('matchSumLost').textContent = lost;
+}
+
+// Lade Freundesliste für Match-Setup
+async function loadMatchFriends() {
+  if(!currentUser) return;
+  try {
+    var mySnap = await db.collection('users').doc(currentUser.uid).get();
+    if(!mySnap.exists) return;
+    var friends = mySnap.data().friends || [];
+    var container = document.getElementById('matchFriendsList');
+    if(!friends.length) { container.innerHTML='<div style="font-size:12px;color:var(--color-text-secondary);">Noch keine Freunde hinzugefügt</div>'; return; }
+    var items = await Promise.all(friends.map(async function(fid) {
+      var fSnap = await db.collection('users').doc(fid).get();
+      if(!fSnap.exists) return null;
+      var f = fSnap.data();
+      return {name:f.name, hcp:f.hcp||18};
+    }));
+    container.innerHTML = '';
+    items.filter(Boolean).forEach(function(f) {
+      var btn = document.createElement('button');
+      btn.style.cssText='width:100%;padding:10px 12px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);font-size:13px;cursor:pointer;text-align:left;font-family:var(--font-sans);color:var(--color-text-primary);margin-bottom:4px;display:block;';
+      btn.innerHTML='👤 '+f.name+' <span style="color:var(--color-text-secondary);font-size:11px;">· HCP '+f.hcp+'</span>';
+      btn.onclick=(function(n,h){return function(){window.selectMatchFriend(n,h);};})(f.name,f.hcp);
+      container.appendChild(btn);
+    });
+  } catch(e) { console.warn('Match friends:', e); }
+}
+
+window.selectMatchFriend = function(name, hcp) {
+  document.getElementById('matchOpponentName').value = name;
+  document.getElementById('matchOpponentHcp').value = hcp;
 };
 
 // ═══════════════════════════════════════════════════════════
