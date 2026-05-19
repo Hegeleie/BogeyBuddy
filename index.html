@@ -808,7 +808,8 @@ async function loadFeed() {
   feed.innerHTML = allRounds.slice(0,10).map((r,idx)=>{
     const dT=r.totalBrutto-72;
     const isMe = r.userId===currentUser.uid;
-    const spans=(r.scores||[]).map((s,i)=>{const d=s-(HOLES[i]?.par||4);const c=d<=-2?'eagle':d===-1?'birdie':d===1?'bogey':d>=2?'dbl':'';return`<span class="${c}" style="display:inline-block;min-width:22px;text-align:center;margin:1px;font-size:11px;border-radius:3px;padding:1px 2px">${s||'·'}</span>`;}).join('');
+    const scArr=Array.isArray(r.scores)?r.scores:Array.from({length:18},(_,i)=>(r.scores&&r.scores['h'+(i+1)])||0);
+    const spans=scArr.map((s,i)=>{const d=s-(HOLES[i]?.par||4);const c=d<=-2?'eagle':d===-1?'birdie':d===1?'bogey':d>=2?'dbl':'';return`<span class="${c}" style="display:inline-block;min-width:22px;text-align:center;margin:1px;font-size:11px;border-radius:3px;padding:1px 2px">${s||'·'}</span>`;}).join('');
     return`<div class="round-card">
       ${isMe?`<button class="del-btn" onclick="deleteRound('${r.id}')">×</button>`:''}
       <div class="r-user">${isMe?'Du':r.userName}</div>
@@ -1234,23 +1235,72 @@ function renderCard(hcp){
 }
 
 window.saveRound = async () => {
-  if(!currentUser){alert('Bitte erst anmelden');return;}
+  if(!currentUser){showSaveError('Nicht angemeldet – bitte erst einloggen.');return;}
   const hcp=getHcp(),played=scores.filter(s=>s>0).length;
-  if(!played){alert('Keine Schläge eingegeben!');return;}
+  if(!played){showSaveError('Keine Schläge eingegeben! Bitte mindestens ein Loch spielen.');return;}
   const tB=scores.reduce((a,b)=>a+b,0),tS=scores.reduce((s,b,i)=>s+stableford(b,i,hcp),0);
-  try {
-    await db.collection('rounds').add({
-      userId:currentUser.uid,
-      userName:currentUser.displayName||currentUser.email,
-      date:new Date().toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}),
-      hcp,tee,scores:[...scores],totalBrutto:tB,totalStab:tS,played,
-      shots:shots.map(h=>h.map(s=>({lat:s.lat,lon:s.lon,dist:s.dist,club:s.club||''}))),
-      createdAt:firebase.firestore.FieldValue.serverTimestamp(),
+
+  // Firestore unterstützt keine verschachtelten Arrays (Array-of-Arrays).
+  // shots wird daher als flaches Array von Objekten mit holeIndex gespeichert.
+  const shotsFlat = [];
+  shots.forEach((holeShots, holeIdx) => {
+    holeShots.forEach((s, shotIdx) => {
+      shotsFlat.push({
+        hole: holeIdx,
+        shot: shotIdx,
+        lat: s.lat != null ? s.lat : null,
+        lon: s.lon != null ? s.lon : null,
+        dist: s.dist != null ? s.dist : 0,
+        club: s.club || ''
+      });
     });
-    alert('Runde gespeichert & geteilt! 🏌️');
+  });
+
+  // scores als Objekt speichern, um Array-Probleme zu umgehen
+  const scoresObj = {};
+  scores.forEach((v,i) => { scoresObj['h'+(i+1)] = v; });
+
+  const payload = {
+    userId: currentUser.uid,
+    userName: currentUser.displayName || currentUser.email,
+    date: new Date().toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}),
+    hcp, tee,
+    scores: scoresObj,
+    totalBrutto: tB,
+    totalStab: tS,
+    played,
+    shots: shotsFlat,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+  };
+
+  try {
+    await db.collection('rounds').add(payload);
+    showSaveSuccess();
     showTab('social');
-  } catch(e){alert('Fehler: '+e.message);}
+  } catch(e) {
+    console.error('saveRound Fehler:', e);
+    let msg = e.message || 'Unbekannter Fehler';
+    if(e.code) msg = '['+e.code+'] ' + msg;
+    showSaveError(msg);
+  }
 };
+
+function showSaveError(msg) {
+  const d = document.createElement('div');
+  d.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#c0392b;color:#fff;padding:14px 20px;border-radius:12px;font-size:13px;font-weight:600;z-index:99999;max-width:340px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.3);';
+  d.innerHTML = '⚠️ Fehler beim Speichern<br><span style="font-weight:400;font-size:12px;">' + msg + '</span><br><span style="font-size:11px;opacity:0.8;margin-top:4px;display:block;">Tippe zum Schließen</span>';
+  d.onclick = () => d.remove();
+  document.body.appendChild(d);
+  setTimeout(() => d.remove(), 8000);
+}
+
+function showSaveSuccess() {
+  const d = document.createElement('div');
+  d.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1e4d0a;color:#c8e6a0;padding:14px 20px;border-radius:12px;font-size:14px;font-weight:700;z-index:99999;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.3);';
+  d.textContent = '✅ Runde gespeichert & geteilt! 🏌️';
+  document.body.appendChild(d);
+  setTimeout(() => d.remove(), 3000);
+}
 
 window.resetRound = () => {
   if(!confirm('Alle Schläge zurücksetzen?')) return;
