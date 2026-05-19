@@ -247,9 +247,6 @@ html,body{height:100%;background:#0d1f08;font-family:'DM Sans',sans-serif;}
 .green-load-fill{height:100%;background:#7ac455;border-radius:2px;width:0%;transition:width 0.5s;}
 .green-badge{position:absolute;top:10px;left:10px;background:rgba(13,31,8,0.88);color:#c8e6a0;border-radius:8px;padding:4px 10px;font-size:11px;font-weight:700;pointer-events:none;}
 .green-sl-badge{position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.55);color:rgba(255,255,255,0.65);border-radius:6px;padding:3px 7px;font-size:9px;letter-spacing:0.5px;pointer-events:none;}
-.green-zoom-btns{position:absolute;bottom:10px;right:10px;display:flex;flex-direction:column;gap:4px;}
-.green-zoom-btn{width:28px;height:28px;border-radius:8px;background:rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.2);color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
-.green-compass-wrap{position:absolute;bottom:10px;left:10px;width:52px;height:52px;}
 .green-legend{display:flex;gap:6px;padding:6px 12px;flex-wrap:wrap;background:#f8f8f4;border-bottom:1px solid #eee;align-items:center;}
 .gl{display:flex;align-items:center;gap:3px;font-size:10px;color:#555;}
 .gl-dot{width:9px;height:9px;border-radius:2px;flex-shrink:0;}
@@ -453,25 +450,7 @@ html,body{height:100%;background:#0d1f08;font-family:'DM Sans',sans-serif;}
       </div>
       <div class="green-badge">Loch <span id="greenLochBadge">1</span> &middot; Green Map</div>
       <div class="green-sl-badge">StacknLine</div>
-      <!-- Compass SVG -->
-      <div class="green-compass-wrap">
-        <svg id="greenCompass" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="26" cy="26" r="24" fill="rgba(0,0,0,0.62)" stroke="rgba(255,255,255,0.3)" stroke-width="1.2"/>
-          <g id="compassNeedle">
-            <polygon points="26,6 29,26 26,30 23,26" fill="#ef4444"/>
-            <polygon points="26,30 29,26 26,46 23,26" fill="rgba(255,255,255,0.85)"/>
-          </g>
-          <text x="26" y="14" text-anchor="middle" font-size="8" fill="#ef4444" font-weight="700" font-family="DM Sans,sans-serif">N</text>
-          <text x="26" y="44" text-anchor="middle" font-size="7" fill="rgba(255,255,255,0.6)" font-family="DM Sans,sans-serif">S</text>
-          <text x="10" y="29" text-anchor="middle" font-size="7" fill="rgba(255,255,255,0.6)" font-family="DM Sans,sans-serif">W</text>
-          <text x="43" y="29" text-anchor="middle" font-size="7" fill="rgba(255,255,255,0.6)" font-family="DM Sans,sans-serif">O</text>
-        </svg>
-      </div>
-      <div class="green-zoom-btns">
-        <div class="green-zoom-btn" onclick="greenZoom(1.35)">+</div>
-        <div class="green-zoom-btn" onclick="greenZoom(0.74)">&#8722;</div>
-        <div class="green-zoom-btn" onclick="greenResetZoom()" style="font-size:11px;">&#10530;</div>
-      </div>
+    </div>
     </div>
     <div class="green-legend">
       <div class="gl"><div class="gl-dot" style="background:#22c55e"></div>Flach</div>
@@ -1445,53 +1424,32 @@ window.deleteAccount = async () => {
 // ═══════════════════════════════════════════════════════════
 
 const GREEN_DATA = [
-  {n:1, par:4, si:7,  size:'~28m', maxSlope:'10.4%', slopeDesc:'sehr steil', dir:'↑ N', dirDesc:'Bergab nach Norden', tip:'Massives Gefälle vorne-links (10.4%). Niemals über die Fahne – Ball rollt stark Richtung Norden. Fahne Mitte: sicherer Anspielpunkt.', compassDeg:0},
-  {n:2, par:4, si:3,  size:'~38m', maxSlope:'10.6%', slopeDesc:'sehr steil', dir:'↓ S', dirDesc:'Bergab nach Süden', tip:'Steiles Band in der Mitte (6–10%). Ball rollt hangabwärts Richtung Süden. Von der rechten Seite deutlich einfacher zu putten.', compassDeg:180},
-  {n:3, par:3, si:13, size:'~35m', maxSlope:'11.8%', slopeDesc:'sehr steil', dir:'↙ SW', dirDesc:'Bergab Richtung SW', tip:'Sehr steiles rechtes Segment (11.8%). Immer von unten putten – Bälle rollen stark Richtung Nordwesten. Fahne Mitte: ca. 3.2%.', compassDeg:225},
-  {n:4, par:5, si:5,  size:'~34m', maxSlope:'6.4%',  slopeDesc:'steil',      dir:'↓ S', dirDesc:'Bergab nach Süden', tip:'Relativ flaches Green (max. 6.4%). Untere Hälfte fast flach (blau). Obere Hälfte fällt Richtung Süden – Fahne oben: vorsichtig.', compassDeg:180},
-  {n:5, par:4, si:1,  size:'~38m', maxSlope:'10.5%', slopeDesc:'sehr steil', dir:'→ O', dirDesc:'Bergab nach Osten', tip:'Steiles rechtes Band (10.5%). Hauptgefälle von West nach Ost. Fahne links-Mitte: deutlich einfacher und sicherer.', compassDeg:90},
-  {n:6, par:3, si:11, size:'~32m', maxSlope:'6.1%',  slopeDesc:'steil',      dir:'↓ S', dirDesc:'Bergab nach Süden', tip:'Rundes Green, gleichmäßiges Gefälle. Links-Mitte steil (6.1%), rechts etwas flacher. Von unten anlegen.', compassDeg:180},
-  {n:7, par:5, si:9,  size:'~38m', maxSlope:'6.7%',  slopeDesc:'steil',      dir:'↓ S', dirDesc:'Bergab nach Süden', tip:'Links-Seite sehr steil (6.7%), Mitte und rechts deutlich flacher. Ideale Anspielzone ist rechts-Mitte.', compassDeg:180},
-  {n:8, par:4, si:15, size:'~36m', maxSlope:'4.6%',  slopeDesc:'mittel',     dir:'↓ S', dirDesc:'Bergab nach Süden', tip:'Eines der flachsten Greens (max. 4.6%). Links steil, Rest sehr gut puttbar. Blauer Bereich = sehr leicht.', compassDeg:180},
-  {n:9, par:3, si:17, size:'~28m', maxSlope:'8.4%',  slopeDesc:'sehr steil', dir:'↓ S', dirDesc:'Bergab nach Süden', tip:'Durchgehend steiles Green (8.4% links). Pink/Orange-Band – Ball rollt stark bergab. Unbedingt von unten anlegen!', compassDeg:180},
-  {n:10,par:4, si:6,  size:'~32m', maxSlope:'4.1%',  slopeDesc:'mittel',     dir:'↓ S', dirDesc:'Bergab nach Süden', tip:'Flaches, angenehmes Green. Kleines steiles Segment rechts-Mitte (4.1%). Generell sehr gut puttbar.', compassDeg:180},
-  {n:11,par:4, si:12, size:'~34m', maxSlope:'9.9%',  slopeDesc:'sehr steil', dir:'← W', dirDesc:'Bergab nach Westen', tip:'Rechte Seite extrem steil (9.9%)! Links deutlich angenehmer. Fahne rechts-Mitte: Ball rollt stark nach links weg.', compassDeg:270},
-  {n:12,par:3, si:4,  size:'~32m', maxSlope:'3.9%',  slopeDesc:'leicht',     dir:'↓ S', dirDesc:'Bergab nach Süden', tip:'Sehr flaches, rundes Green (fast alles blau). Beste Puttbedingungen am Platz. Max. 3.9% – sauber lesen.', compassDeg:180},
-  {n:13,par:4, si:8,  size:'~26m', maxSlope:'4.6%',  slopeDesc:'mittel',     dir:'→ O', dirDesc:'Bergab nach Osten', tip:'Gefälle hauptsächlich von West nach Ost. Obere Hälfte steil (rot), untere Hälfte flach. Fahne unten-rechts: einfach.', compassDeg:90},
-  {n:14,par:5, si:2,  size:'~22m', maxSlope:'4.8%',  slopeDesc:'mittel',     dir:'↓ S', dirDesc:'Bergab nach Süden', tip:'Breites, flaches Green. Kleines steiles Segment oben-Mitte (4.8%). Insgesamt gut zu spielen.', compassDeg:180},
-  {n:15,par:4, si:10, size:'~28m', maxSlope:'3.9%',  slopeDesc:'leicht',     dir:'↓ S', dirDesc:'Bergab nach Süden', tip:'Fast komplett flach (grün/blau). Oben leicht steil, Rest sehr einfach. Gutes Birdie-Green!', compassDeg:180},
-  {n:16,par:3, si:16, size:'~34m', maxSlope:'4.2%',  slopeDesc:'mittel',     dir:'↑ N', dirDesc:'Bergab nach Norden', tip:'Flaches Green, Gefälle von Süd nach Nord. Links steil (3–4%), Rest sehr flach. Fahne rechts: sicher.', compassDeg:0},
-  {n:17,par:5, si:14, size:'~34m', maxSlope:'5.5%',  slopeDesc:'steil',      dir:'⊙ Schüssel', dirDesc:'Ränder rollen zur Mitte', tip:'Schüsselförmiges Green! Ränder steil (5.5%), Mitte flach. Ball rollt immer zur Mitte – von außen immer unterschätzt.', compassDeg:null},
-  {n:18,par:4, si:18, size:'~28m', maxSlope:'6.2%',  slopeDesc:'steil',      dir:'⟳ Komplex', dirDesc:'Verschiedene Richtungen', tip:'Komplexestes Green! Mehrere Gefällerichtungen. Sehr schwer zu lesen – immer mit einem Extra-Meter Sicherheit spielen.', compassDeg:null},
+  {n:1, par:4, si:7,  size:'~28m', maxSlope:'10.4%', slopeDesc:'sehr steil', dir:'↑ N', dirDesc:'Bergab nach Norden', tip:'Massives Gefälle vorne-links (10.4%). Niemals über die Fahne – Ball rollt stark Richtung Norden. Fahne Mitte: sicherer Anspielpunkt.'},
+  {n:2, par:4, si:3,  size:'~38m', maxSlope:'10.6%', slopeDesc:'sehr steil', dir:'↓ S', dirDesc:'Bergab nach Süden', tip:'Steiles Band in der Mitte (6–10%). Ball rollt hangabwärts Richtung Süden. Von der rechten Seite deutlich einfacher zu putten.'},
+  {n:3, par:3, si:13, size:'~35m', maxSlope:'11.8%', slopeDesc:'sehr steil', dir:'↙ SW', dirDesc:'Bergab Richtung SW', tip:'Sehr steiles rechtes Segment (11.8%). Immer von unten putten – Bälle rollen stark Richtung Nordwesten. Fahne Mitte: ca. 3.2%.'},
+  {n:4, par:5, si:5,  size:'~34m', maxSlope:'6.4%',  slopeDesc:'steil',      dir:'↓ S', dirDesc:'Bergab nach Süden', tip:'Relativ flaches Green (max. 6.4%). Untere Hälfte fast flach (blau). Obere Hälfte fällt Richtung Süden – Fahne oben: vorsichtig.'},
+  {n:5, par:4, si:1,  size:'~38m', maxSlope:'10.5%', slopeDesc:'sehr steil', dir:'→ O', dirDesc:'Bergab nach Osten', tip:'Steiles rechtes Band (10.5%). Hauptgefälle von West nach Ost. Fahne links-Mitte: deutlich einfacher und sicherer.'},
+  {n:6, par:3, si:11, size:'~32m', maxSlope:'6.1%',  slopeDesc:'steil',      dir:'↓ S', dirDesc:'Bergab nach Süden', tip:'Rundes Green, gleichmäßiges Gefälle. Links-Mitte steil (6.1%), rechts etwas flacher. Von unten anlegen.'},
+  {n:7, par:5, si:9,  size:'~38m', maxSlope:'6.7%',  slopeDesc:'steil',      dir:'↓ S', dirDesc:'Bergab nach Süden', tip:'Links-Seite sehr steil (6.7%), Mitte und rechts deutlich flacher. Ideale Anspielzone ist rechts-Mitte.'},
+  {n:8, par:4, si:15, size:'~36m', maxSlope:'4.6%',  slopeDesc:'mittel',     dir:'↓ S', dirDesc:'Bergab nach Süden', tip:'Eines der flachsten Greens (max. 4.6%). Links steil, Rest sehr gut puttbar. Blauer Bereich = sehr leicht.'},
+  {n:9, par:3, si:17, size:'~28m', maxSlope:'8.4%',  slopeDesc:'sehr steil', dir:'↓ S', dirDesc:'Bergab nach Süden', tip:'Durchgehend steiles Green (8.4% links). Pink/Orange-Band – Ball rollt stark bergab. Unbedingt von unten anlegen!'},
+  {n:10,par:4, si:6,  size:'~32m', maxSlope:'4.1%',  slopeDesc:'mittel',     dir:'↓ S', dirDesc:'Bergab nach Süden', tip:'Flaches, angenehmes Green. Kleines steiles Segment rechts-Mitte (4.1%). Generell sehr gut puttbar.'},
+  {n:11,par:4, si:12, size:'~34m', maxSlope:'9.9%',  slopeDesc:'sehr steil', dir:'← W', dirDesc:'Bergab nach Westen', tip:'Rechte Seite extrem steil (9.9%)! Links deutlich angenehmer. Fahne rechts-Mitte: Ball rollt stark nach links weg.'},
+  {n:12,par:3, si:4,  size:'~32m', maxSlope:'3.9%',  slopeDesc:'leicht',     dir:'↓ S', dirDesc:'Bergab nach Süden', tip:'Sehr flaches, rundes Green (fast alles blau). Beste Puttbedingungen am Platz. Max. 3.9% – sauber lesen.'},
+  {n:13,par:4, si:8,  size:'~26m', maxSlope:'4.6%',  slopeDesc:'mittel',     dir:'→ O', dirDesc:'Bergab nach Osten', tip:'Gefälle hauptsächlich von West nach Ost. Obere Hälfte steil (rot), untere Hälfte flach. Fahne unten-rechts: einfach.'},
+  {n:14,par:5, si:2,  size:'~22m', maxSlope:'4.8%',  slopeDesc:'mittel',     dir:'↓ S', dirDesc:'Bergab nach Süden', tip:'Breites, flaches Green. Kleines steiles Segment oben-Mitte (4.8%). Insgesamt gut zu spielen.'},
+  {n:15,par:4, si:10, size:'~28m', maxSlope:'3.9%',  slopeDesc:'leicht',     dir:'↓ S', dirDesc:'Bergab nach Süden', tip:'Fast komplett flach (grün/blau). Oben leicht steil, Rest sehr einfach. Gutes Birdie-Green!'},
+  {n:16,par:3, si:16, size:'~34m', maxSlope:'4.2%',  slopeDesc:'mittel',     dir:'↑ N', dirDesc:'Bergab nach Norden', tip:'Flaches Green, Gefälle von Süd nach Nord. Links steil (3–4%), Rest sehr flach. Fahne rechts: sicher.'},
+  {n:17,par:5, si:14, size:'~34m', maxSlope:'5.5%',  slopeDesc:'steil',      dir:'⊙ Schüssel', dirDesc:'Ränder rollen zur Mitte', tip:'Schüsselförmiges Green! Ränder steil (5.5%), Mitte flach. Ball rollt immer zur Mitte – von außen immer unterschätzt.'},
+  {n:18,par:4, si:18, size:'~28m', maxSlope:'6.2%',  slopeDesc:'steil',      dir:'⟳ Komplex', dirDesc:'Verschiedene Richtungen', tip:'Komplexestes Green! Mehrere Gefällerichtungen. Sehr schwer zu lesen – immer mit einem Extra-Meter Sicherheit spielen.'},
 ];
 
 let greenCur = 0;
 let greenScale = 1, greenPanX = 0, greenPanY = 0;
 let greenInited = false;
 let greenPinchDist = null;
-let compassHeading = null;
 
-// Gerätekompass
-if(window.DeviceOrientationEvent){
-  window.addEventListener('deviceorientationabsolute', function(e){
-    if(e.alpha !== null) compassHeading = e.alpha;
-    updateGreenCompass();
-  }, true);
-  window.addEventListener('deviceorientation', function(e){
-    if(e.alpha !== null && compassHeading === null) compassHeading = e.alpha;
-    updateGreenCompass();
-  }, true);
-}
 
-function updateGreenCompass(){
-  const d = GREEN_DATA[greenCur];
-  const needle = document.getElementById('compassNeedle');
-  if(!needle) return;
-  // Kompassnadel dreht sich so dass N immer nach Norden zeigt
-  const rot = compassHeading ? -compassHeading : 0;
-  needle.style.transform = 'rotate(' + rot + 'deg)';
-  needle.style.transformOrigin = '26px 26px';
-}
 
 function greenInitTab(){
   if(!greenInited){
@@ -1501,12 +1459,7 @@ function greenInitTab(){
     greenUpdateInfo();
   }
   // Kompass-Anfrage bei iOS
-  if(typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function'){
-    DeviceOrientationEvent.requestPermission().then(function(r){
-      if(r === 'granted') console.log('Kompass OK');
-    }).catch(function(){});
   }
-}
 
 function greenBuildDots(){
   const c = document.getElementById('greenDots');
@@ -1523,7 +1476,6 @@ function greenBuildDots(){
 
 function greenSetHole(idx){
   greenCur = idx;
-  greenResetZoom();
   greenBuildDots();
   greenLoadImg(idx);
   greenUpdateInfo();
@@ -1587,25 +1539,9 @@ function greenUpdateInfo(){
   if(tip) tip.textContent = h.tip;
   const scn = document.getElementById('greenScNum');
   if(scn) scn.textContent = scores[greenCur] || 0;
-  // Kompass-Nadel anpassen falls kein Gerätesensor
-  const needle = document.getElementById('compassNeedle');
-  if(needle && compassHeading === null && h.compassDeg !== null){
-    // Zeige statische Gefällerichtung wenn kein Gerätesensor
-    needle.style.transform = 'rotate(0deg)';
-  }
-  updateGreenCompass();
 }
 
-function greenZoom(f){
-  greenScale = Math.max(1, Math.min(5, greenScale * f));
-  greenApplyTransform();
-}
 
-function greenResetZoom(){
-  greenScale = 1; greenPanX = 0; greenPanY = 0;
-  const img = document.getElementById('greenImgWrap') ? document.getElementById('greenImgWrap').querySelector('img') : null;
-  if(img) img.style.transform = '';
-}
 
 function greenApplyTransform(){
   const img = document.getElementById('greenImgWrap') ? document.getElementById('greenImgWrap').querySelector('img') : null;
