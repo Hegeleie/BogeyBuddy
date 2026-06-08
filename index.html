@@ -231,39 +231,6 @@ html,body{height:100%;background:#0d1f08;font-family:'DM Sans',sans-serif;}
 .loading-spinner{width:32px;height:32px;border:3px solid #eee;border-top-color:#1e4d0a;border-radius:50%;animation:spin 0.8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-txt{font-size:14px;color:#888;}
-/* GREEN TAB */
-.green-hole-nav{display:flex;align-items:center;background:#0d1f08;padding:6px 10px;gap:6px;}
-.green-nav-arr{background:rgba(255,255,255,0.12);border:none;color:#c8e6a0;width:30px;height:30px;border-radius:8px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;}
-.green-nav-arr:active{background:rgba(255,255,255,0.25);}
-.green-hole-dots{flex:1;display:flex;gap:3px;justify-content:center;overflow:hidden;}
-.ghdot{width:12px;height:12px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.07);cursor:pointer;flex-shrink:0;}
-.ghdot.on{background:#7ac455;border-color:#7ac455;}
-.green-img-wrap{position:relative;background:#0d1f08;height:310px;overflow:hidden;touch-action:none;user-select:none;}
-.green-img-wrap img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;object-position:center;transform-origin:center center;display:none;}
-.green-img-wrap img.loaded{display:block;}
-.green-placeholder{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:rgba(255,255,255,0.4);font-size:13px;gap:8px;}
-.green-placeholder-icon{font-size:36px;}
-.green-load-bar{width:120px;height:4px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;margin-top:4px;}
-.green-load-fill{height:100%;background:#7ac455;border-radius:2px;width:0%;transition:width 0.5s;}
-.green-badge{position:absolute;top:10px;left:10px;background:rgba(13,31,8,0.88);color:#c8e6a0;border-radius:8px;padding:4px 10px;font-size:11px;font-weight:700;pointer-events:none;}
-.green-sl-badge{position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.55);color:rgba(255,255,255,0.65);border-radius:6px;padding:3px 7px;font-size:9px;letter-spacing:0.5px;pointer-events:none;}
-.green-legend{display:flex;gap:6px;padding:6px 12px;flex-wrap:wrap;background:#f8f8f4;border-bottom:1px solid #eee;align-items:center;}
-.gl{display:flex;align-items:center;gap:3px;font-size:10px;color:#555;}
-.gl-dot{width:9px;height:9px;border-radius:2px;flex-shrink:0;}
-.green-info-strip{display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid #eee;}
-.gis{padding:7px 4px;text-align:center;border-right:1px solid #eee;}
-.gis:last-child{border-right:none;}
-.gis-l{font-size:9px;color:#bbb;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:1px;}
-.gis-v{font-size:14px;font-weight:700;color:#1a1a1a;font-family:'DM Mono',monospace;}
-.gis-s{font-size:9px;color:#aaa;}
-.green-putt-tip{padding:7px 12px;background:#f0f7ea;border-bottom:1px solid #d4edda;display:flex;align-items:flex-start;gap:6px;}
-.green-putt-tip-txt{font-size:11px;color:#1e4d0a;line-height:1.45;flex:1;}
-.green-score-row{padding:8px 14px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid #eee;}
-.green-score-lbl{font-size:12px;color:#aaa;}
-.green-score-ctrl{display:flex;align-items:center;gap:12px;}
-.green-sc-btn{width:34px;height:34px;border-radius:50%;border:1.5px solid #e0e0d8;background:#fff;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#333;font-family:'DM Sans',sans-serif;}
-.green-sc-num{font-size:26px;font-weight:700;min-width:36px;text-align:center;color:#1a1a1a;font-family:'DM Mono',monospace;}
-
 </style>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -333,7 +300,6 @@ html,body{height:100%;background:#0d1f08;font-family:'DM Sans',sans-serif;}
     <button class="tab on" onclick="showTab('hole')">⛳ Loch</button>
     <button class="tab" onclick="showTab('score')">📊 Score</button>
     <button class="tab" onclick="showTab('card')">📋 Karte</button>
-    <button class="tab" onclick="showTab('green')">🟢 Green</button>
     <button class="tab" onclick="showTab('social')">👥 Freunde</button>
   </div>
 
@@ -432,51 +398,6 @@ html,body{height:100%;background:#0d1f08;font-family:'DM Sans',sans-serif;}
       <table class="sc-tbl"><thead><tr><th>L</th><th>Par</th><th>SI</th><th>Brutto</th><th>Netto</th><th>Stbl</th></tr></thead><tbody id="scB"></tbody></table>
       <div class="sum-grid" id="sumGrid"></div>
       <button class="save-btn" onclick="saveRound()">💾 Runde speichern & teilen</button>
-    </div>
-  </div>
-
-  <!-- GREEN TAB -->
-  <div class="page" id="tab-green">
-    <div class="green-hole-nav">
-      <button class="green-nav-arr" onclick="greenChangeHole(-1)">&#8249;</button>
-      <div class="green-hole-dots" id="greenDots"></div>
-      <button class="green-nav-arr" onclick="greenChangeHole(1)">&#8250;</button>
-    </div>
-    <div class="green-img-wrap" id="greenImgWrap">
-      <div class="green-placeholder" id="greenPlaceholder">
-        <div class="green-placeholder-icon">&#127823;</div>
-        <div id="greenPlhTxt">Greenkarte wird geladen...</div>
-        <div class="green-load-bar"><div class="green-load-fill" id="greenLoadFill"></div></div>
-      </div>
-      <div class="green-badge">Loch <span id="greenLochBadge">1</span> &middot; Green Map</div>
-      <div class="green-sl-badge">StacknLine</div>
-    </div>
-    </div>
-    <div class="green-legend">
-      <div class="gl"><div class="gl-dot" style="background:#22c55e"></div>Flach</div>
-      <div class="gl"><div class="gl-dot" style="background:#f97316"></div>Mittel</div>
-      <div class="gl"><div class="gl-dot" style="background:#ef4444"></div>Steil</div>
-      <div class="gl"><div class="gl-dot" style="background:#ec4899"></div>Sehr steil</div>
-      <div class="gl"><div class="gl-dot" style="background:#3b82f6"></div>Flach &#8593;</div>
-      <div style="flex:1"></div>
-      <div style="font-size:10px;color:#bbb;">% = Gef&auml;lle</div>
-    </div>
-    <div class="green-info-strip">
-      <div class="gis"><div class="gis-l">Max. Slope</div><div class="gis-v" id="greenMaxSlope">&#8212;</div><div class="gis-s" id="greenSlopeDesc">&#8212;</div></div>
-      <div class="gis"><div class="gis-l">Gef&auml;llerichtung</div><div class="gis-v" id="greenDir">&#8212;</div><div class="gis-s" id="greenDirDesc">&#8212;</div></div>
-      <div class="gis"><div class="gis-l">Tiefe Green</div><div class="gis-v" id="greenSize">&#8212;</div><div class="gis-s">Meter</div></div>
-    </div>
-    <div class="green-putt-tip">
-      <span style="font-size:13px;flex-shrink:0;">&#128161;</span>
-      <div class="green-putt-tip-txt" id="greenTip">&#8212;</div>
-    </div>
-    <div class="green-score-row">
-      <div class="green-score-lbl">Schlagz&auml;hler Loch <span id="greenScLoch">1</span></div>
-      <div class="green-score-ctrl">
-        <button class="green-sc-btn" onclick="greenChg(-1)">&#8722;</button>
-        <div class="green-sc-num" id="greenScNum">0</div>
-        <button class="green-sc-btn" onclick="greenChg(1)">+</button>
-      </div>
     </div>
   </div>
 
@@ -887,8 +808,7 @@ async function loadFeed() {
   feed.innerHTML = allRounds.slice(0,10).map((r,idx)=>{
     const dT=r.totalBrutto-72;
     const isMe = r.userId===currentUser.uid;
-    const scArr=Array.isArray(r.scores)?r.scores:Array.from({length:18},(_,i)=>(r.scores&&r.scores['h'+(i+1)])||0);
-    const spans=scArr.map((s,i)=>{const d=s-(HOLES[i]?.par||4);const c=d<=-2?'eagle':d===-1?'birdie':d===1?'bogey':d>=2?'dbl':'';return`<span class="${c}" style="display:inline-block;min-width:22px;text-align:center;margin:1px;font-size:11px;border-radius:3px;padding:1px 2px">${s||'·'}</span>`;}).join('');
+    const spans=(r.scores||[]).map((s,i)=>{const d=s-(HOLES[i]?.par||4);const c=d<=-2?'eagle':d===-1?'birdie':d===1?'bogey':d>=2?'dbl':'';return`<span class="${c}" style="display:inline-block;min-width:22px;text-align:center;margin:1px;font-size:11px;border-radius:3px;padding:1px 2px">${s||'·'}</span>`;}).join('');
     return`<div class="round-card">
       ${isMe?`<button class="del-btn" onclick="deleteRound('${r.id}')">×</button>`:''}
       <div class="r-user">${isMe?'Du':r.userName}</div>
@@ -1202,12 +1122,11 @@ window.setClub = function(i,v){ shots[cur][i].club=v; };
 // TABS
 // ═══════════════════════════════════════════════════════════
 window.showTab = (t)=>{
-  const tabs=['hole','score','card','green','social'];
+  const tabs=['hole','score','card','social'];
   document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('on',tabs[i]===t));
   document.querySelectorAll('.page').forEach((el,i)=>el.classList.toggle('on','tab-'+tabs[i]==='tab-'+t));
   if(t==='hole'){setTimeout(function(){if(holeMap)holeMap.invalidateSize();},80);}
   if(t==='social'){loadSocialData();}
-  if(t==='green'){greenInitTab();}
 };
 
 window.setTee = (t)=>{
@@ -1238,8 +1157,7 @@ window.go = function(dir){
     if(flagMarker) holeMap.removeLayer(flagMarker);
     flagMarker = L.marker(gLL,{icon:pinIcon('#f97316')}).addTo(holeMap);
     if(myPos) calcDist(gLL);
-    var mh=document.getElementById('mapHint');
-    if(mh) mh.textContent='📍 Green-Mitte · Antippen zum Präzisieren';
+    // mapHint nur im Loch-Tab vorhanden
   }, 400);
 };
 var go = window.go;
@@ -1258,8 +1176,8 @@ function render(){
   document.getElementById('dF').textContent=Math.round(len*0.91);
   document.getElementById('dM').textContent=len;
   document.getElementById('dB').textContent=Math.round(len*1.09);
-  document.getElementById('mapEx').textContent=ex>0?'+'+ex:'0';
-  document.getElementById('mapNP').textContent='Netto-Par: '+np;
+  var mapEx=document.getElementById('mapEx'); if(mapEx) mapEx.textContent=ex>0?'+'+ex:'0';
+  var mapNP=document.getElementById('mapNP'); if(mapNP) mapNP.textContent='Netto-Par: '+np;
   document.getElementById('hNs').textContent=cur+1;
   document.getElementById('scV').textContent=s;
   document.getElementById('bigN').textContent=s;
@@ -1315,72 +1233,23 @@ function renderCard(hcp){
 }
 
 window.saveRound = async () => {
-  if(!currentUser){showSaveError('Nicht angemeldet – bitte erst einloggen.');return;}
+  if(!currentUser){alert('Bitte erst anmelden');return;}
   const hcp=getHcp(),played=scores.filter(s=>s>0).length;
-  if(!played){showSaveError('Keine Schläge eingegeben! Bitte mindestens ein Loch spielen.');return;}
+  if(!played){alert('Keine Schläge eingegeben!');return;}
   const tB=scores.reduce((a,b)=>a+b,0),tS=scores.reduce((s,b,i)=>s+stableford(b,i,hcp),0);
-
-  // Firestore unterstützt keine verschachtelten Arrays (Array-of-Arrays).
-  // shots wird daher als flaches Array von Objekten mit holeIndex gespeichert.
-  const shotsFlat = [];
-  shots.forEach((holeShots, holeIdx) => {
-    holeShots.forEach((s, shotIdx) => {
-      shotsFlat.push({
-        hole: holeIdx,
-        shot: shotIdx,
-        lat: s.lat != null ? s.lat : null,
-        lon: s.lon != null ? s.lon : null,
-        dist: s.dist != null ? s.dist : 0,
-        club: s.club || ''
-      });
-    });
-  });
-
-  // scores als Objekt speichern, um Array-Probleme zu umgehen
-  const scoresObj = {};
-  scores.forEach((v,i) => { scoresObj['h'+(i+1)] = v; });
-
-  const payload = {
-    userId: currentUser.uid,
-    userName: currentUser.displayName || currentUser.email,
-    date: new Date().toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}),
-    hcp, tee,
-    scores: scoresObj,
-    totalBrutto: tB,
-    totalStab: tS,
-    played,
-    shots: shotsFlat,
-    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-  };
-
   try {
-    await db.collection('rounds').add(payload);
-    showSaveSuccess();
+    await db.collection('rounds').add({
+      userId:currentUser.uid,
+      userName:currentUser.displayName||currentUser.email,
+      date:new Date().toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}),
+      hcp,tee,scores:[...scores],totalBrutto:tB,totalStab:tS,played,
+      shots:shots.map(h=>h.map(s=>({lat:s.lat,lon:s.lon,dist:s.dist,club:s.club||''}))),
+      createdAt:firebase.firestore.FieldValue.serverTimestamp(),
+    });
+    alert('Runde gespeichert & geteilt! 🏌️');
     showTab('social');
-  } catch(e) {
-    console.error('saveRound Fehler:', e);
-    let msg = e.message || 'Unbekannter Fehler';
-    if(e.code) msg = '['+e.code+'] ' + msg;
-    showSaveError(msg);
-  }
+  } catch(e){alert('Fehler: '+e.message);}
 };
-
-function showSaveError(msg) {
-  const d = document.createElement('div');
-  d.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#c0392b;color:#fff;padding:14px 20px;border-radius:12px;font-size:13px;font-weight:600;z-index:99999;max-width:340px;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.3);';
-  d.innerHTML = '⚠️ Fehler beim Speichern<br><span style="font-weight:400;font-size:12px;">' + msg + '</span><br><span style="font-size:11px;opacity:0.8;margin-top:4px;display:block;">Tippe zum Schließen</span>';
-  d.onclick = () => d.remove();
-  document.body.appendChild(d);
-  setTimeout(() => d.remove(), 8000);
-}
-
-function showSaveSuccess() {
-  const d = document.createElement('div');
-  d.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1e4d0a;color:#c8e6a0;padding:14px 20px;border-radius:12px;font-size:14px;font-weight:700;z-index:99999;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.3);';
-  d.textContent = '✅ Runde gespeichert & geteilt! 🏌️';
-  document.body.appendChild(d);
-  setTimeout(() => d.remove(), 3000);
-}
 
 window.resetRound = () => {
   if(!confirm('Alle Schläge zurücksetzen?')) return;
@@ -1417,171 +1286,6 @@ window.deleteAccount = async () => {
   }
 };
 
-
-
-// ═══════════════════════════════════════════════════════════
-// GREEN TAB
-// ═══════════════════════════════════════════════════════════
-
-const GREEN_DATA = [
-  {n:1, par:4, si:7,  size:'~28m', maxSlope:'10.4%', slopeDesc:'sehr steil', dir:'↑ N', dirDesc:'Bergab nach Norden', tip:'Massives Gefälle vorne-links (10.4%). Niemals über die Fahne – Ball rollt stark Richtung Norden. Fahne Mitte: sicherer Anspielpunkt.'},
-  {n:2, par:4, si:3,  size:'~38m', maxSlope:'10.6%', slopeDesc:'sehr steil', dir:'↓ S', dirDesc:'Bergab nach Süden', tip:'Steiles Band in der Mitte (6–10%). Ball rollt hangabwärts Richtung Süden. Von der rechten Seite deutlich einfacher zu putten.'},
-  {n:3, par:3, si:13, size:'~35m', maxSlope:'11.8%', slopeDesc:'sehr steil', dir:'↙ SW', dirDesc:'Bergab Richtung SW', tip:'Sehr steiles rechtes Segment (11.8%). Immer von unten putten – Bälle rollen stark Richtung Nordwesten. Fahne Mitte: ca. 3.2%.'},
-  {n:4, par:5, si:5,  size:'~34m', maxSlope:'6.4%',  slopeDesc:'steil',      dir:'↓ S', dirDesc:'Bergab nach Süden', tip:'Relativ flaches Green (max. 6.4%). Untere Hälfte fast flach (blau). Obere Hälfte fällt Richtung Süden – Fahne oben: vorsichtig.'},
-  {n:5, par:4, si:1,  size:'~38m', maxSlope:'10.5%', slopeDesc:'sehr steil', dir:'→ O', dirDesc:'Bergab nach Osten', tip:'Steiles rechtes Band (10.5%). Hauptgefälle von West nach Ost. Fahne links-Mitte: deutlich einfacher und sicherer.'},
-  {n:6, par:3, si:11, size:'~32m', maxSlope:'6.1%',  slopeDesc:'steil',      dir:'↓ S', dirDesc:'Bergab nach Süden', tip:'Rundes Green, gleichmäßiges Gefälle. Links-Mitte steil (6.1%), rechts etwas flacher. Von unten anlegen.'},
-  {n:7, par:5, si:9,  size:'~38m', maxSlope:'6.7%',  slopeDesc:'steil',      dir:'↓ S', dirDesc:'Bergab nach Süden', tip:'Links-Seite sehr steil (6.7%), Mitte und rechts deutlich flacher. Ideale Anspielzone ist rechts-Mitte.'},
-  {n:8, par:4, si:15, size:'~36m', maxSlope:'4.6%',  slopeDesc:'mittel',     dir:'↓ S', dirDesc:'Bergab nach Süden', tip:'Eines der flachsten Greens (max. 4.6%). Links steil, Rest sehr gut puttbar. Blauer Bereich = sehr leicht.'},
-  {n:9, par:3, si:17, size:'~28m', maxSlope:'8.4%',  slopeDesc:'sehr steil', dir:'↓ S', dirDesc:'Bergab nach Süden', tip:'Durchgehend steiles Green (8.4% links). Pink/Orange-Band – Ball rollt stark bergab. Unbedingt von unten anlegen!'},
-  {n:10,par:4, si:6,  size:'~32m', maxSlope:'4.1%',  slopeDesc:'mittel',     dir:'↓ S', dirDesc:'Bergab nach Süden', tip:'Flaches, angenehmes Green. Kleines steiles Segment rechts-Mitte (4.1%). Generell sehr gut puttbar.'},
-  {n:11,par:4, si:12, size:'~34m', maxSlope:'9.9%',  slopeDesc:'sehr steil', dir:'← W', dirDesc:'Bergab nach Westen', tip:'Rechte Seite extrem steil (9.9%)! Links deutlich angenehmer. Fahne rechts-Mitte: Ball rollt stark nach links weg.'},
-  {n:12,par:3, si:4,  size:'~32m', maxSlope:'3.9%',  slopeDesc:'leicht',     dir:'↓ S', dirDesc:'Bergab nach Süden', tip:'Sehr flaches, rundes Green (fast alles blau). Beste Puttbedingungen am Platz. Max. 3.9% – sauber lesen.'},
-  {n:13,par:4, si:8,  size:'~26m', maxSlope:'4.6%',  slopeDesc:'mittel',     dir:'→ O', dirDesc:'Bergab nach Osten', tip:'Gefälle hauptsächlich von West nach Ost. Obere Hälfte steil (rot), untere Hälfte flach. Fahne unten-rechts: einfach.'},
-  {n:14,par:5, si:2,  size:'~22m', maxSlope:'4.8%',  slopeDesc:'mittel',     dir:'↓ S', dirDesc:'Bergab nach Süden', tip:'Breites, flaches Green. Kleines steiles Segment oben-Mitte (4.8%). Insgesamt gut zu spielen.'},
-  {n:15,par:4, si:10, size:'~28m', maxSlope:'3.9%',  slopeDesc:'leicht',     dir:'↓ S', dirDesc:'Bergab nach Süden', tip:'Fast komplett flach (grün/blau). Oben leicht steil, Rest sehr einfach. Gutes Birdie-Green!'},
-  {n:16,par:3, si:16, size:'~34m', maxSlope:'4.2%',  slopeDesc:'mittel',     dir:'↑ N', dirDesc:'Bergab nach Norden', tip:'Flaches Green, Gefälle von Süd nach Nord. Links steil (3–4%), Rest sehr flach. Fahne rechts: sicher.'},
-  {n:17,par:5, si:14, size:'~34m', maxSlope:'5.5%',  slopeDesc:'steil',      dir:'⊙ Schüssel', dirDesc:'Ränder rollen zur Mitte', tip:'Schüsselförmiges Green! Ränder steil (5.5%), Mitte flach. Ball rollt immer zur Mitte – von außen immer unterschätzt.'},
-  {n:18,par:4, si:18, size:'~28m', maxSlope:'6.2%',  slopeDesc:'steil',      dir:'⟳ Komplex', dirDesc:'Verschiedene Richtungen', tip:'Komplexestes Green! Mehrere Gefällerichtungen. Sehr schwer zu lesen – immer mit einem Extra-Meter Sicherheit spielen.'},
-];
-
-let greenCur = 0;
-let greenScale = 1, greenPanX = 0, greenPanY = 0;
-let greenInited = false;
-let greenPinchDist = null;
-
-
-
-function greenInitTab(){
-  if(!greenInited){
-    greenInited = true;
-    greenBuildDots();
-    greenLoadImg(greenCur);
-    greenUpdateInfo();
-  }
-  // Kompass-Anfrage bei iOS
-  }
-
-function greenBuildDots(){
-  const c = document.getElementById('greenDots');
-  if(!c) return;
-  c.innerHTML = '';
-  GREEN_DATA.forEach(function(h, i){
-    const d = document.createElement('div');
-    d.className = 'ghdot' + (i === greenCur ? ' on' : '');
-    d.title = 'Loch ' + h.n;
-    d.onclick = (function(idx){ return function(){ greenSetHole(idx); }; })(i);
-    c.appendChild(d);
-  });
-}
-
-function greenSetHole(idx){
-  greenCur = idx;
-  greenBuildDots();
-  greenLoadImg(idx);
-  greenUpdateInfo();
-  // Sync mit Haupt-Loch
-  cur = idx;
-  render();
-}
-
-function greenChangeHole(dir){
-  greenSetHole(Math.max(0, Math.min(17, greenCur + dir)));
-}
-
-function greenLoadImg(idx){
-  const h = GREEN_DATA[idx];
-  const wrap = document.getElementById('greenImgWrap');
-  const ph = document.getElementById('greenPlaceholder');
-  const fill = document.getElementById('greenLoadFill');
-  const plhTxt = document.getElementById('greenPlhTxt');
-  if(!wrap) return;
-  // Altes Bild entfernen
-  const old = wrap.querySelector('img');
-  if(old) old.remove();
-  ph.style.display = 'flex';
-  fill.style.width = '0%';
-  plhTxt.textContent = 'Loch ' + h.n + ' wird geladen...';
-  setTimeout(function(){ fill.style.width = '55%'; }, 80);
-  const img = document.createElement('img');
-  img.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;object-position:center;transform-origin:center center;';
-  img.src = 'Loch_' + h.n + '_Greenkarte.png';
-  img.alt = 'Greenkarte Loch ' + h.n;
-  img.onload = function(){
-    fill.style.width = '100%';
-    setTimeout(function(){ ph.style.display = 'none'; img.style.display = 'block'; }, 200);
-    greenSetupPinch(wrap, img);
-  };
-  img.onerror = function(){
-    fill.style.width = '100%';
-    plhTxt.textContent = 'Loch ' + h.n + ' – Bild nicht gefunden (GitHub hochladen)';
-  };
-  img.style.display = 'none';
-  wrap.appendChild(img);
-}
-
-function greenUpdateInfo(){
-  const h = GREEN_DATA[greenCur];
-  const badge = document.getElementById('greenLochBadge');
-  if(badge) badge.textContent = h.n;
-  const sl = document.getElementById('greenScLoch');
-  if(sl) sl.textContent = h.n;
-  const ms = document.getElementById('greenMaxSlope');
-  if(ms) ms.textContent = h.maxSlope;
-  const sd = document.getElementById('greenSlopeDesc');
-  if(sd) sd.textContent = h.slopeDesc;
-  const dir = document.getElementById('greenDir');
-  if(dir) dir.textContent = h.dir;
-  const dd = document.getElementById('greenDirDesc');
-  if(dd) dd.textContent = h.dirDesc;
-  const gs = document.getElementById('greenSize');
-  if(gs) gs.textContent = h.size;
-  const tip = document.getElementById('greenTip');
-  if(tip) tip.textContent = h.tip;
-  const scn = document.getElementById('greenScNum');
-  if(scn) scn.textContent = scores[greenCur] || 0;
-}
-
-
-
-function greenApplyTransform(){
-  const img = document.getElementById('greenImgWrap') ? document.getElementById('greenImgWrap').querySelector('img') : null;
-  if(img) img.style.transform = 'scale(' + greenScale + ') translate(' + greenPanX + 'px,' + greenPanY + 'px)';
-}
-
-function greenSetupPinch(wrap, img){
-  let lastDist = null;
-  let startPanX = 0, startPanY = 0, startTouchX = 0, startTouchY = 0;
-  wrap.addEventListener('touchstart', function(e){
-    if(e.touches.length === 2){
-      lastDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-    } else if(e.touches.length === 1 && greenScale > 1){
-      startTouchX = e.touches[0].clientX;
-      startTouchY = e.touches[0].clientY;
-      startPanX = greenPanX;
-      startPanY = greenPanY;
-    }
-  }, {passive:true});
-  wrap.addEventListener('touchmove', function(e){
-    if(e.touches.length === 2 && lastDist){
-      const d = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-      greenScale = Math.max(1, Math.min(5, greenScale * (d / lastDist)));
-      lastDist = d;
-      greenApplyTransform();
-    } else if(e.touches.length === 1 && greenScale > 1){
-      greenPanX = startPanX + (e.touches[0].clientX - startTouchX) / greenScale;
-      greenPanY = startPanY + (e.touches[0].clientY - startTouchY) / greenScale;
-      greenApplyTransform();
-    }
-  }, {passive:true});
-  wrap.addEventListener('touchend', function(){ lastDist = null; }, {passive:true});
-}
-
-window.greenChg = function(d){
-  scores[greenCur] = Math.max(0, (scores[greenCur] || 0) + d);
-  const el = document.getElementById('greenScNum');
-  if(el) el.textContent = scores[greenCur];
-  render();
-};
 
 // ═══════════════════════════════════════════════════════════
 // GPS WATCHER
