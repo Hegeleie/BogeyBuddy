@@ -185,6 +185,54 @@ html,body{height:100%;background:#0d1f08;font-family:'DM Sans',sans-serif;}
 .md-v{font-size:22px;font-weight:700;color:#1a1a1a;font-family:'DM Mono',monospace;}
 .md-s{font-size:11px;color:#bbb;}
 
+/* MATCHPLAY TAB */
+.mp-wrap{padding:0 0 80px;}
+.mp-setup{padding:14px;}
+.mp-card{background:#fff;border-radius:14px;border:1.5px solid #eee;padding:14px;margin-bottom:12px;}
+.mp-card-ttl{font-size:11px;color:#bbb;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:10px;font-weight:600;}
+.mp-players{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.mp-player-box{background:#f8f8f4;border-radius:10px;padding:10px;text-align:center;}
+.mp-player-name{font-size:13px;font-weight:700;color:#1a1a1a;margin-bottom:6px;}
+.mp-hcp-row{display:flex;align-items:center;justify-content:center;gap:6px;}
+.mp-hcp-btn{width:26px;height:26px;border-radius:50%;border:1.5px solid #e0e0d8;background:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#333;}
+.mp-hcp-val{font-size:18px;font-weight:700;min-width:30px;text-align:center;font-family:'DM Mono',monospace;}
+.mp-input{width:100%;padding:10px 12px;border:1.5px solid #e0e0d8;border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;box-sizing:border-box;margin-bottom:4px;}
+.mp-start-btn{display:block;width:100%;padding:14px;background:#0d1f08;color:#c8e6a0;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;text-align:center;margin-top:4px;}
+.mp-status-bar{background:#0d1f08;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;}
+.mp-status-names{font-size:12px;color:rgba(255,255,255,0.6);}
+.mp-status-score{font-size:22px;font-weight:700;color:#c8e6a0;font-family:'DM Mono',monospace;text-align:center;flex:1;}
+.mp-status-sub{font-size:10px;color:rgba(255,255,255,0.5);text-align:center;}
+.mp-holes-grid{display:grid;grid-template-columns:repeat(9,1fr);gap:2px;padding:8px;}
+.mp-hole-dot{height:28px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;background:#f0f0ea;color:#aaa;cursor:pointer;}
+.mp-hole-dot.won{background:#166534;color:#fff;}
+.mp-hole-dot.lost{background:#991b1b;color:#fff;}
+.mp-hole-dot.halved{background:#6b7280;color:#fff;}
+.mp-hole-dot.cur{outline:2px solid #7ac455;outline-offset:1px;}
+.mp-hole-entry{padding:14px;}
+.mp-hole-hdr{text-align:center;margin-bottom:12px;}
+.mp-hole-ttl{font-size:18px;font-weight:700;color:#1a1a1a;}
+.mp-hole-sub{font-size:12px;color:#aaa;margin-top:2px;}
+.mp-scores-row{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;margin-bottom:10px;}
+.mp-score-box{background:#f8f8f4;border-radius:12px;padding:10px;text-align:center;}
+.mp-score-box.highlight{background:#f0f7ea;border:1.5px solid #4a9a2a;}
+.mp-score-lbl{font-size:11px;color:#bbb;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:4px;}
+.mp-score-ctrl{display:flex;align-items:center;justify-content:center;gap:8px;}
+.mp-score-btn{width:30px;height:30px;border-radius:50%;border:1.5px solid #e0e0d8;background:#fff;font-size:18px;cursor:pointer;color:#333;}
+.mp-score-num{font-size:24px;font-weight:700;min-width:32px;text-align:center;font-family:'DM Mono',monospace;}
+.mp-vs{font-size:16px;font-weight:700;color:#bbb;text-align:center;}
+.mp-vorgabe-info{background:#fff3cd;border-radius:8px;padding:6px 10px;font-size:11px;color:#856404;text-align:center;margin-bottom:10px;}
+.mp-result-banner{border-radius:10px;padding:10px;text-align:center;font-size:14px;font-weight:700;margin-bottom:10px;}
+.mp-result-banner.won{background:#f0f7ea;color:#166534;}
+.mp-result-banner.lost{background:#fef2f2;color:#991b1b;}
+.mp-result-banner.halved{background:#f3f4f6;color:#374151;}
+.mp-next-btn{display:block;width:100%;padding:12px;background:#0d1f08;color:#c8e6a0;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;text-align:center;}
+.mp-finish-btn{display:block;width:100%;padding:14px;background:#1e4d0a;color:#c8e6a0;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;text-align:center;margin-top:8px;}
+.mp-final-card{padding:20px;text-align:center;}
+.mp-final-trophy{font-size:48px;margin-bottom:8px;}
+.mp-final-result{font-size:24px;font-weight:700;color:#1a1a1a;margin-bottom:4px;}
+.mp-final-sub{font-size:14px;color:#888;}
+.mp-reset-btn{display:block;width:calc(100% - 28px);margin:14px;padding:12px;background:#fff;color:#c0392b;border:1.5px solid #f5b8b8;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;text-align:center;}
+
 /* SOCIAL TAB */
 .social-wrap{padding:14px;}
 .social-section{margin-bottom:20px;}
@@ -302,6 +350,7 @@ html,body{height:100%;background:#0d1f08;font-family:'DM Sans',sans-serif;}
     <button class="tab on" onclick="showTab('hole')">⛳ Loch</button>
     <button class="tab" onclick="showTab('score')">📊 Score</button>
     <button class="tab" onclick="showTab('card')">📋 Karte</button>
+    <button class="tab" onclick="showTab('match')">⚔️ Match</button>
     <button class="tab" onclick="showTab('social')">👥 Freunde</button>
   </div>
 
@@ -411,6 +460,133 @@ html,body{height:100%;background:#0d1f08;font-family:'DM Sans',sans-serif;}
       <table class="sc-tbl"><thead><tr><th>L</th><th>Par</th><th>SI</th><th>Brutto</th><th>Netto</th><th>Stbl</th></tr></thead><tbody id="scB"></tbody></table>
       <div class="sum-grid" id="sumGrid"></div>
       <button class="save-btn" onclick="saveRound()">💾 Runde speichern & teilen</button>
+    </div>
+  </div>
+
+  <!-- MATCH TAB -->
+  <div class="page" id="tab-match">
+    <div class="mp-wrap">
+
+      <!-- SETUP VIEW -->
+      <div id="mpSetup">
+        <div style="background:#0d1f08;padding:14px 16px;">
+          <div style="font-size:18px;font-weight:700;color:#fff;">⚔️ Matchplay</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:2px;">1 gegen 1 · GC Mettmann</div>
+        </div>
+        <div class="mp-setup">
+          <div class="mp-card">
+            <div class="mp-card-ttl">Spieler</div>
+            <div class="mp-players">
+              <div class="mp-player-box">
+                <div class="mp-player-name" id="mpNameA">Du</div>
+                <div style="font-size:10px;color:#aaa;margin-bottom:6px;">HCP</div>
+                <div class="mp-hcp-row">
+                  <button class="mp-hcp-btn" onclick="mpChgHcp('a',-1)">−</button>
+                  <div class="mp-hcp-val" id="mpHcpA">24</div>
+                  <button class="mp-hcp-btn" onclick="mpChgHcp('a',1)">+</button>
+                </div>
+              </div>
+              <div class="mp-player-box">
+                <input class="mp-input" id="mpInputB" placeholder="Name Gegner" style="margin-bottom:6px;font-size:13px;padding:6px 8px;"/>
+                <div style="font-size:10px;color:#aaa;margin-bottom:6px;">HCP</div>
+                <div class="mp-hcp-row">
+                  <button class="mp-hcp-btn" onclick="mpChgHcp('b',-1)">−</button>
+                  <div class="mp-hcp-val" id="mpHcpB">24</div>
+                  <button class="mp-hcp-btn" onclick="mpChgHcp('b',1)">+</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="mp-card">
+            <div class="mp-card-ttl">Vorgabeschläge</div>
+            <div style="font-size:12px;color:#888;margin-bottom:10px;">Automatisch aus HCP berechnet – oder manuell überschreiben:</div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="flex:1;">
+                <div style="font-size:11px;color:#bbb;margin-bottom:4px;">Spieler A bekommt</div>
+                <div class="mp-hcp-row">
+                  <button class="mp-hcp-btn" onclick="mpChgStrokes('a',-1)">−</button>
+                  <div class="mp-hcp-val" id="mpStrokesA">0</div>
+                  <button class="mp-hcp-btn" onclick="mpChgStrokes('a',1)">+</button>
+                </div>
+              </div>
+              <div style="font-size:12px;color:#bbb;padding-top:16px;">Schläge</div>
+              <div style="flex:1;">
+                <div style="font-size:11px;color:#bbb;margin-bottom:4px;">Spieler B bekommt</div>
+                <div class="mp-hcp-row">
+                  <button class="mp-hcp-btn" onclick="mpChgStrokes('b',-1)">−</button>
+                  <div class="mp-hcp-val" id="mpStrokesB">0</div>
+                  <button class="mp-hcp-btn" onclick="mpChgStrokes('b',1)">+</button>
+                </div>
+              </div>
+            </div>
+            <div id="mpAutoStrokeInfo" style="margin-top:10px;font-size:11px;color:#4a9a2a;text-align:center;"></div>
+          </div>
+          <button class="mp-start-btn" onclick="mpStart()">▶ Match starten</button>
+        </div>
+      </div>
+
+      <!-- GAME VIEW -->
+      <div id="mpGame" style="display:none;">
+        <!-- Status bar -->
+        <div class="mp-status-bar">
+          <div>
+            <div class="mp-status-names" id="mpStatusNameA">Du</div>
+          </div>
+          <div style="flex:1;text-align:center;">
+            <div class="mp-status-score" id="mpStatusScore">AS</div>
+            <div class="mp-status-sub" id="mpStatusSub">Loch 1 von 18</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="mp-status-names" id="mpStatusNameB">Gegner</div>
+          </div>
+        </div>
+
+        <!-- Holes grid -->
+        <div class="mp-holes-grid" id="mpHolesGrid"></div>
+
+        <!-- Current hole entry -->
+        <div class="mp-hole-entry" id="mpHoleEntry">
+          <div class="mp-hole-hdr">
+            <div class="mp-hole-ttl" id="mpHoleTtl">Loch 1</div>
+            <div class="mp-hole-sub" id="mpHoleSub">Par 4 · SI 7</div>
+          </div>
+          <div id="mpVorgabeInfo" class="mp-vorgabe-info" style="display:none;"></div>
+          <div class="mp-scores-row">
+            <div class="mp-score-box" id="mpBoxA">
+              <div class="mp-score-lbl" id="mpLblA">Du</div>
+              <div class="mp-score-ctrl">
+                <button class="mp-score-btn" onclick="mpChgScore('a',-1)">−</button>
+                <div class="mp-score-num" id="mpScoreA">0</div>
+                <button class="mp-score-btn" onclick="mpChgScore('a',1)">+</button>
+              </div>
+            </div>
+            <div class="mp-vs">VS</div>
+            <div class="mp-score-box" id="mpBoxB">
+              <div class="mp-score-lbl" id="mpLblB">Gegner</div>
+              <div class="mp-score-ctrl">
+                <button class="mp-score-btn" onclick="mpChgScore('b',-1)">−</button>
+                <div class="mp-score-num" id="mpScoreB">0</div>
+                <button class="mp-score-btn" onclick="mpChgScore('b',1)">+</button>
+              </div>
+            </div>
+          </div>
+          <div class="mp-result-banner" id="mpResultBanner" style="display:none;"></div>
+          <button class="mp-next-btn" id="mpNextBtn" onclick="mpNextHole()">Weiter →</button>
+          <button class="mp-finish-btn" id="mpFinishBtn" onclick="mpFinish()" style="display:none;">🏆 Match beenden & speichern</button>
+        </div>
+      </div>
+
+      <!-- FINAL VIEW -->
+      <div id="mpFinal" style="display:none;">
+        <div class="mp-final-card">
+          <div class="mp-final-trophy" id="mpFinalTrophy">🏆</div>
+          <div class="mp-final-result" id="mpFinalResult">—</div>
+          <div class="mp-final-sub" id="mpFinalSub">—</div>
+          <div style="margin-top:20px;" id="mpFinalHoles"></div>
+        </div>
+        <button class="mp-reset-btn" onclick="mpReset()">↩ Neues Match</button>
+      </div>
+
     </div>
   </div>
 
@@ -814,13 +990,41 @@ async function loadFeed() {
     snap.docs.forEach(d=>allRounds.push({id:d.id,...d.data()}));
   }
 
-  allRounds.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+  // Also load matches
+  let allMatches = [];
+  try {
+    for(const uid of uids.slice(0,5)) {
+      const mq = db.collection('matches').where('userId','==',uid).orderBy('createdAt','desc').limit(3);
+      const msnap = await mq.get();
+      msnap.docs.forEach(d=>allMatches.push({id:d.id,...d.data(),_type:'match'}));
+    }
+  } catch(e) { console.warn('Matches feed:', e); }
 
-  if(!allRounds.length){feed.innerHTML='<div style="text-align:center;color:#bbb;padding:20px;font-size:13px;">Noch keine Runden</div>';return;}
+  // Merge and sort
+  const allItems = [...allRounds.map(r=>({...r,_type:'round'})),...allMatches];
+  allItems.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
 
-  feed.innerHTML = allRounds.slice(0,10).map((r,idx)=>{
-    const dT=r.totalBrutto-72;
+  if(!allItems.length){feed.innerHTML='<div style="text-align:center;color:#bbb;padding:20px;font-size:13px;">Noch keine Runden</div>';return;}
+
+  feed.innerHTML = allItems.slice(0,12).map((r,idx)=>{
     const isMe = r.userId===currentUser.uid;
+    if(r._type==='match') {
+      const wonA = r.holesWonA||0, wonB = r.holesWonB||0;
+      const dots = Array.from({length:18},(_,i)=>{
+        const res = r.holeResults?.['h'+(i+1)];
+        const bg = res==='a'?'#166534':res==='b'?'#991b1b':res==='half'?'#6b7280':'#e5e7eb';
+        return `<span style="display:inline-block;width:18px;height:18px;background:${bg};border-radius:3px;font-size:9px;color:#fff;text-align:center;line-height:18px;margin:1px;">${i+1}</span>`;
+      }).join('');
+      return `<div class="round-card" style="border-left:3px solid #4a9a2a;">
+        <div class="r-user">⚔️ Matchplay · ${isMe?'Du':r.userName} vs ${r.opponent}</div>
+        <div class="r-date">${r.date||''} · HCP ${r.hcpA}/${r.hcpB}</div>
+        <div style="font-size:15px;font-weight:700;margin:4px 0;">${r.result||'—'}</div>
+        <div style="font-size:12px;color:#888;margin-bottom:4px;">🏆 ${r.userName}: ${wonA} · ${r.opponent}: ${wonB}</div>
+        <div class="r-detail" id="fd${idx}">${dots}</div>
+        <div class="r-more" onclick="document.getElementById('fd${idx}').classList.toggle('open')">Details ▾</div>
+      </div>`;
+    }
+    const dT=r.totalBrutto-72;
     const scArr=Array.isArray(r.scores)?r.scores:Array.from({length:18},(_,i)=>(r.scores&&r.scores['h'+(i+1)])||0);
     const spans=scArr.map((s,i)=>{const d=s-(HOLES[i]?.par||4);const c=d<=-2?'eagle':d===-1?'birdie':d===1?'bogey':d>=2?'dbl':'';return`<span class="${c}" style="display:inline-block;min-width:22px;text-align:center;margin:1px;font-size:11px;border-radius:3px;padding:1px 2px">${s||'·'}</span>`;}).join('');
     return`<div class="round-card">
@@ -1158,11 +1362,12 @@ window.setClub = function(i,v){ shots[cur][i].club=v; };
 // TABS
 // ═══════════════════════════════════════════════════════════
 window.showTab = (t)=>{
-  const tabs=['hole','score','card','social'];
+  const tabs=['hole','score','card','match','social'];
   document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('on',tabs[i]===t));
   document.querySelectorAll('.page').forEach((el,i)=>el.classList.toggle('on','tab-'+tabs[i]==='tab-'+t));
   if(t==='hole'){setTimeout(function(){if(holeMap)holeMap.invalidateSize();},80);}
   if(t==='social'){loadSocialData();}
+  if(t==='match'){mpInitTab();}
 };
 
 window.setTee = (t)=>{
@@ -1375,6 +1580,320 @@ window.deleteAccount = async () => {
 
 
 
+
+
+// ═══════════════════════════════════════════════════════════
+// MATCHPLAY
+// ═══════════════════════════════════════════════════════════
+let mpState = {
+  active: false,
+  nameA: 'Du', nameB: 'Gegner',
+  hcpA: 24, hcpB: 24,
+  strokesA: 0, strokesB: 0, // vorgabe strokes given to each player
+  curHole: 0,  // 0-indexed
+  scoresA: new Array(18).fill(0),
+  scoresB: new Array(18).fill(0),
+  results: new Array(18).fill(null), // 'a','b','half'
+  // match status
+  upA: 0, upB: 0, // holes up
+  finished: false,
+  finishHole: -1,
+};
+
+function mpInitTab() {
+  // Set player A name from login
+  if(currentUser) {
+    const name = currentUser.displayName || currentUser.email.split('@')[0];
+    mpState.nameA = name;
+    const el = document.getElementById('mpNameA');
+    if(el) el.textContent = name;
+  }
+  mpCalcAutoStrokes();
+  if(mpState.active) {
+    mpShowGame();
+  } else if(mpState.finished) {
+    mpShowFinal();
+  } else {
+    document.getElementById('mpSetup').style.display='block';
+    document.getElementById('mpGame').style.display='none';
+    document.getElementById('mpFinal').style.display='none';
+  }
+}
+
+function mpCalcAutoStrokes() {
+  const diff = mpState.hcpA - mpState.hcpB;
+  // Lower HCP gives strokes to higher HCP
+  let sA = 0, sB = 0;
+  if(diff > 0) sB = Math.abs(diff); // B has lower hcp, A gets strokes... wait
+  // Actually: higher HCP receives strokes from lower HCP player
+  if(diff > 0) { sA = Math.abs(diff); sB = 0; } // A has higher HCP, A receives
+  else if(diff < 0) { sA = 0; sB = Math.abs(diff); }
+  // Cap at 18
+  sA = Math.min(sA, 18); sB = Math.min(sB, 18);
+  mpState.strokesA = sA;
+  mpState.strokesB = sB;
+  const elA = document.getElementById('mpStrokesA');
+  const elB = document.getElementById('mpStrokesB');
+  if(elA) elA.textContent = sA;
+  if(elB) elB.textContent = sB;
+  const info = document.getElementById('mpAutoStrokeInfo');
+  if(info) {
+    if(sA > 0) info.textContent = '→ ' + mpState.nameA + ' bekommt ' + sA + ' Vorgabeschläge (auto)';
+    else if(sB > 0) info.textContent = '→ ' + (mpState.nameB||'Gegner') + ' bekommt ' + sB + ' Vorgabeschläge (auto)';
+    else info.textContent = '→ Kein Vorgabeausgleich (gleiche HCP)';
+  }
+}
+
+window.mpChgHcp = function(who, d) {
+  if(who==='a') { mpState.hcpA = Math.max(0, Math.min(54, mpState.hcpA+d)); document.getElementById('mpHcpA').textContent = mpState.hcpA; }
+  else { mpState.hcpB = Math.max(0, Math.min(54, mpState.hcpB+d)); document.getElementById('mpHcpB').textContent = mpState.hcpB; }
+  mpCalcAutoStrokes();
+};
+
+window.mpChgStrokes = function(who, d) {
+  if(who==='a') { mpState.strokesA = Math.max(0, Math.min(18, mpState.strokesA+d)); document.getElementById('mpStrokesA').textContent = mpState.strokesA; }
+  else { mpState.strokesB = Math.max(0, Math.min(18, mpState.strokesB+d)); document.getElementById('mpStrokesB').textContent = mpState.strokesB; }
+  const info = document.getElementById('mpAutoStrokeInfo');
+  if(info) info.textContent = '✏️ Manuell überschrieben';
+};
+
+window.mpStart = function() {
+  const nameB = document.getElementById('mpInputB').value.trim();
+  if(!nameB) { alert('Bitte Namen des Gegners eingeben'); return; }
+  mpState.nameB = nameB;
+  mpState.active = true;
+  mpState.finished = false;
+  mpState.curHole = 0;
+  mpState.scoresA = new Array(18).fill(0);
+  mpState.scoresB = new Array(18).fill(0);
+  mpState.results = new Array(18).fill(null);
+  mpState.upA = 0; mpState.upB = 0;
+  mpShowGame();
+};
+
+function mpGetNetScore(rawScore, holeIdx, strokes) {
+  // Strokes are distributed to lowest SI holes first
+  if(rawScore === 0) return 0;
+  const si = HOLES[holeIdx].si;
+  // Player receives a stroke on this hole if strokes >= si
+  const bonus = strokes >= si ? 1 : 0;
+  return rawScore - bonus;
+}
+
+function mpCalcHoleResult(holeIdx) {
+  const sA = mpState.scoresA[holeIdx];
+  const sB = mpState.scoresB[holeIdx];
+  if(sA === 0 || sB === 0) return null;
+  const netA = mpGetNetScore(sA, holeIdx, mpState.strokesA);
+  const netB = mpGetNetScore(sB, holeIdx, mpState.strokesB);
+  if(netA < netB) return 'a';
+  if(netB < netA) return 'b';
+  return 'half';
+}
+
+function mpRecalcStatus() {
+  let upA = 0, upB = 0;
+  for(let i = 0; i < 18; i++) {
+    if(mpState.results[i] === 'a') upA++;
+    else if(mpState.results[i] === 'b') upB++;
+  }
+  mpState.upA = upA; mpState.upB = upB;
+}
+
+function mpShowGame() {
+  document.getElementById('mpSetup').style.display='none';
+  document.getElementById('mpGame').style.display='block';
+  document.getElementById('mpFinal').style.display='none';
+  mpRenderGrid();
+  mpRenderHole();
+  mpUpdateStatusBar();
+}
+
+function mpUpdateStatusBar() {
+  document.getElementById('mpStatusNameA').textContent = mpState.nameA;
+  document.getElementById('mpStatusNameB').textContent = mpState.nameB;
+  const played = mpState.results.filter(r=>r!==null).length;
+  const remaining = 18 - played;
+  let scoreText, subText;
+  if(mpState.upA === mpState.upB) {
+    scoreText = 'AS';
+  } else if(mpState.upA > mpState.upB) {
+    scoreText = mpState.upA - mpState.upB + ' UP';
+    document.getElementById('mpStatusScore').style.color = '#c8e6a0';
+  } else {
+    scoreText = mpState.upB - mpState.upA + ' DN';
+    document.getElementById('mpStatusScore').style.color = '#fca5a5';
+  }
+  if(mpState.upA === mpState.upB) document.getElementById('mpStatusScore').style.color = '#c8e6a0';
+  document.getElementById('mpStatusScore').textContent = scoreText;
+  document.getElementById('mpStatusSub').textContent = 'Loch ' + (mpState.curHole+1) + ' · ' + remaining + ' zu spielen';
+}
+
+function mpRenderGrid() {
+  const grid = document.getElementById('mpHolesGrid');
+  if(!grid) return;
+  grid.innerHTML = '';
+  for(let i = 0; i < 18; i++) {
+    const d = document.createElement('div');
+    d.className = 'mp-hole-dot' + (i===mpState.curHole?' cur':'');
+    const r = mpState.results[i];
+    if(r==='a') d.classList.add('won');
+    else if(r==='b') d.classList.add('lost');
+    else if(r==='half') d.classList.add('halved');
+    d.textContent = i+1;
+    d.onclick = (function(idx){return function(){ mpState.curHole=idx; mpRenderHole(); mpUpdateStatusBar(); mpRenderGrid(); };})(i);
+    grid.appendChild(d);
+  }
+}
+
+function mpRenderHole() {
+  const h = HOLES[mpState.curHole];
+  const i = mpState.curHole;
+  document.getElementById('mpHoleTtl').textContent = 'Loch ' + (i+1) + ' · ' + h.name;
+  document.getElementById('mpHoleSub').textContent = 'Par ' + h.par + ' · SI ' + h.si;
+  document.getElementById('mpLblA').textContent = mpState.nameA;
+  document.getElementById('mpLblB').textContent = mpState.nameB;
+
+  // Vorgabe info for this hole
+  const vEl = document.getElementById('mpVorgabeInfo');
+  const sA = mpState.strokesA >= h.si;
+  const sB = mpState.strokesB >= h.si;
+  if(sA || sB) {
+    vEl.style.display='block';
+    if(sA) vEl.textContent = '⛳ ' + mpState.nameA + ' bekommt +1 Vorgabeschlag auf diesem Loch';
+    if(sB) vEl.textContent = '⛳ ' + mpState.nameB + ' bekommt +1 Vorgabeschlag auf diesem Loch';
+  } else { vEl.style.display='none'; }
+
+  // Scores
+  document.getElementById('mpScoreA').textContent = mpState.scoresA[i] || 0;
+  document.getElementById('mpScoreB').textContent = mpState.scoresB[i] || 0;
+
+  // Result banner
+  const res = mpState.results[i];
+  const banner = document.getElementById('mpResultBanner');
+  const boxA = document.getElementById('mpBoxA');
+  const boxB = document.getElementById('mpBoxB');
+  boxA.classList.remove('highlight'); boxB.classList.remove('highlight');
+  if(res) {
+    banner.style.display='block';
+    if(res==='a') { banner.className='mp-result-banner won'; banner.textContent='🏆 '+mpState.nameA+' gewinnt dieses Loch!'; boxA.classList.add('highlight'); }
+    else if(res==='b') { banner.className='mp-result-banner lost'; banner.textContent='🏆 '+mpState.nameB+' gewinnt dieses Loch!'; boxB.classList.add('highlight'); }
+    else { banner.className='mp-result-banner halved'; banner.textContent='🤝 Loch geteilt (Halved)'; }
+  } else { banner.style.display='none'; }
+
+  // Next / Finish button
+  const isLast = mpState.curHole === 17;
+  const allDone = mpState.results.filter(r=>r!==null).length === 18;
+  document.getElementById('mpNextBtn').style.display = isLast ? 'none' : 'block';
+  document.getElementById('mpFinishBtn').style.display = (isLast || allDone) ? 'block' : 'none';
+}
+
+window.mpChgScore = function(who, d) {
+  const i = mpState.curHole;
+  if(who==='a') mpState.scoresA[i] = Math.max(0, (mpState.scoresA[i]||0)+d);
+  else mpState.scoresB[i] = Math.max(0, (mpState.scoresB[i]||0)+d);
+  // Auto-calc result if both > 0
+  mpState.results[i] = mpCalcHoleResult(i);
+  mpRecalcStatus();
+  mpRenderHole();
+  mpRenderGrid();
+  mpUpdateStatusBar();
+};
+
+window.mpNextHole = function() {
+  if(mpState.curHole < 17) {
+    mpState.curHole++;
+    mpRenderHole();
+    mpRenderGrid();
+    mpUpdateStatusBar();
+  }
+};
+
+window.mpFinish = async function() {
+  mpState.active = false;
+  mpState.finished = true;
+  // Save to Firestore
+  if(currentUser) {
+    try {
+      const upA = mpState.upA, upB = mpState.upB;
+      let resultStr;
+      if(upA === upB) resultStr = 'Tie (AS)';
+      else if(upA > upB) resultStr = mpState.nameA + ' gewinnt ' + (upA-upB) + '&' + (18 - mpState.results.filter(r=>r!==null).length) + 'up';
+      else resultStr = mpState.nameB + ' gewinnt ' + (upB-upA) + '&' + (18 - mpState.results.filter(r=>r!==null).length) + 'up';
+
+      const resultsObj = {};
+      mpState.results.forEach((r,i)=>{ resultsObj['h'+(i+1)] = r||''; });
+      const scA = {}, scB = {};
+      mpState.scoresA.forEach((s,i)=>{ scA['h'+(i+1)]=s; });
+      mpState.scoresB.forEach((s,i)=>{ scB['h'+(i+1)]=s; });
+
+      await db.collection('matches').add({
+        userId: currentUser.uid,
+        userName: mpState.nameA,
+        opponent: mpState.nameB,
+        hcpA: mpState.hcpA, hcpB: mpState.hcpB,
+        strokesA: mpState.strokesA, strokesB: mpState.strokesB,
+        holesWonA: mpState.upA, holesWonB: mpState.upB,
+        result: resultStr,
+        scoresA: scA, scoresB: scB,
+        holeResults: resultsObj,
+        date: new Date().toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}),
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        type: 'match'
+      });
+    } catch(e) { console.warn('Match save error:', e); }
+  }
+  mpShowFinal();
+};
+
+function mpShowFinal() {
+  document.getElementById('mpSetup').style.display='none';
+  document.getElementById('mpGame').style.display='none';
+  document.getElementById('mpFinal').style.display='block';
+  const upA = mpState.upA, upB = mpState.upB;
+  const played = mpState.results.filter(r=>r!==null).length;
+  const remaining = 18 - played;
+  let trophy, result, sub;
+  if(upA === upB) { trophy='🤝'; result='Unentschieden · AS'; sub='Das Match endet gleichstand.'; }
+  else if(upA > upB) {
+    trophy='🏆'; result=mpState.nameA+' gewinnt!';
+    sub=(upA-upB)+'&'+remaining+' · '+upA+' Löcher gewonnen';
+  } else {
+    trophy='🏆'; result=mpState.nameB+' gewinnt!';
+    sub=(upB-upA)+'&'+remaining+' · '+upB+' Löcher gewonnen';
+  }
+  document.getElementById('mpFinalTrophy').textContent=trophy;
+  document.getElementById('mpFinalResult').textContent=result;
+  document.getElementById('mpFinalSub').textContent=sub;
+
+  // Mini scoreboard
+  const sc = document.getElementById('mpFinalHoles');
+  let html = '<div style="display:grid;grid-template-columns:repeat(9,1fr);gap:3px;margin-bottom:8px;">';
+  for(let i=0;i<18;i++){
+    const r=mpState.results[i];
+    const bg = r==='a'?'#166534':r==='b'?'#991b1b':r==='half'?'#6b7280':'#e5e7eb';
+    const col = r?'#fff':'#aaa';
+    html += '<div style="background:'+bg+';color:'+col+';border-radius:4px;padding:4px 2px;text-align:center;font-size:11px;font-weight:700;">'+(i+1)+'</div>';
+  }
+  html += '</div>';
+  html += '<div style="display:flex;justify-content:center;gap:16px;font-size:12px;color:#888;margin-top:8px;">';
+  html += '<span style="color:#166534;">■ '+mpState.nameA+' ('+mpState.upA+')</span>';
+  html += '<span style="color:#991b1b;">■ '+mpState.nameB+' ('+mpState.upB+')</span>';
+  html += '<span style="color:#6b7280;">■ Geteilt ('+(played-upA-upB)+')</span></div>';
+  sc.innerHTML = html;
+}
+
+window.mpReset = function() {
+  mpState = {active:false,finished:false,nameA:mpState.nameA,nameB:'Gegner',
+    hcpA:mpState.hcpA,hcpB:24,strokesA:0,strokesB:0,curHole:0,
+    scoresA:new Array(18).fill(0),scoresB:new Array(18).fill(0),
+    results:new Array(18).fill(null),upA:0,upB:0,finishHole:-1};
+  document.getElementById('mpInputB').value='';
+  mpCalcAutoStrokes();
+  document.getElementById('mpSetup').style.display='block';
+  document.getElementById('mpGame').style.display='none';
+  document.getElementById('mpFinal').style.display='none';
+};
 
 // ═══════════════════════════════════════════════════════════
 // GREEN OVERLAY (Loch-Tab Layer)
