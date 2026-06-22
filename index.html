@@ -1648,7 +1648,7 @@ function mpCalcAutoStrokes() {
       const bg = active ? (v==='a'?'#166534':v==='b'?'#991b1b':'#4b5563') : '#fff';
       const col = active ? '#fff' : '#888';
       const brd = active ? 'none' : '1.5px solid #e0e0d8';
-      html += '<button onclick="mpSetHoleWho(' + i + ',\"' + v + '\")" style="flex:1;padding:4px 1px;border-radius:5px;border:' + brd + ';background:' + bg + ';color:' + col + ';font-size:12px;font-weight:700;cursor:pointer;">' + lbl + '</button>';
+      html += "<button onclick=\"mpSetHoleWho(" + i + ",'" + v + "')\" style=\"flex:1;padding:4px 1px;border-radius:5px;border:" + brd + ";background:" + bg + ";color:" + col + ";font-size:12px;font-weight:700;cursor:pointer;\">" + lbl + "</button>";
     });
     html += '</div>';
     // Stroke count – always visible, greyed out when 'none'
