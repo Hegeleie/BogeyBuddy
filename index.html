@@ -482,7 +482,7 @@ html,body{height:100%;background:#0d1f08;font-family:'DM Sans',sans-serif;}
                 <div style="font-size:10px;color:#aaa;margin-bottom:6px;">HCP</div>
                 <div class="mp-hcp-row">
                   <button class="mp-hcp-btn" onclick="mpChgHcp('a',-1)">−</button>
-                  <div class="mp-hcp-val" id="mpHcpA">24</div>
+                  <input type="number" id="mpHcpA" value="24" min="0" max="54" style="width:44px;text-align:center;font-size:18px;font-weight:700;border:1.5px solid #e0e0d8;border-radius:8px;padding:2px 4px;font-family:'DM Mono',monospace;" oninput="mpState.hcpA=parseInt(this.value)||0;mpCalcAutoStrokes()"/>
                   <button class="mp-hcp-btn" onclick="mpChgHcp('a',1)">+</button>
                 </div>
               </div>
@@ -491,35 +491,16 @@ html,body{height:100%;background:#0d1f08;font-family:'DM Sans',sans-serif;}
                 <div style="font-size:10px;color:#aaa;margin-bottom:6px;">HCP</div>
                 <div class="mp-hcp-row">
                   <button class="mp-hcp-btn" onclick="mpChgHcp('b',-1)">−</button>
-                  <div class="mp-hcp-val" id="mpHcpB">24</div>
+                  <input type="number" id="mpHcpB" value="24" min="0" max="54" style="width:44px;text-align:center;font-size:18px;font-weight:700;border:1.5px solid #e0e0d8;border-radius:8px;padding:2px 4px;font-family:'DM Mono',monospace;" oninput="mpState.hcpB=parseInt(this.value)||0;mpCalcAutoStrokes()"/>
                   <button class="mp-hcp-btn" onclick="mpChgHcp('b',1)">+</button>
                 </div>
               </div>
             </div>
           </div>
           <div class="mp-card">
-            <div class="mp-card-ttl">Vorgabeschläge</div>
-            <div style="font-size:12px;color:#888;margin-bottom:10px;">Automatisch aus HCP berechnet – oder manuell überschreiben:</div>
-            <div style="display:flex;align-items:center;gap:10px;">
-              <div style="flex:1;">
-                <div style="font-size:11px;color:#bbb;margin-bottom:4px;">Spieler A bekommt</div>
-                <div class="mp-hcp-row">
-                  <button class="mp-hcp-btn" onclick="mpChgStrokes('a',-1)">−</button>
-                  <div class="mp-hcp-val" id="mpStrokesA">0</div>
-                  <button class="mp-hcp-btn" onclick="mpChgStrokes('a',1)">+</button>
-                </div>
-              </div>
-              <div style="font-size:12px;color:#bbb;padding-top:16px;">Schläge</div>
-              <div style="flex:1;">
-                <div style="font-size:11px;color:#bbb;margin-bottom:4px;">Spieler B bekommt</div>
-                <div class="mp-hcp-row">
-                  <button class="mp-hcp-btn" onclick="mpChgStrokes('b',-1)">−</button>
-                  <div class="mp-hcp-val" id="mpStrokesB">0</div>
-                  <button class="mp-hcp-btn" onclick="mpChgStrokes('b',1)">+</button>
-                </div>
-              </div>
-            </div>
-            <div id="mpAutoStrokeInfo" style="margin-top:10px;font-size:11px;color:#4a9a2a;text-align:center;"></div>
+            <div class="mp-card-ttl">Vorgabeschläge pro Loch</div>
+            <div style="font-size:12px;color:#888;margin-bottom:10px;">Wer bekommt auf welchem Loch einen Extra-Schlag? 0 = keiner, A = Spieler A, B = Spieler B</div>
+            <div id="mpVorgabeGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;"></div>
           </div>
           <button class="mp-start-btn" onclick="mpStart()">▶ Match starten</button>
         </div>
@@ -556,7 +537,7 @@ html,body{height:100%;background:#0d1f08;font-family:'DM Sans',sans-serif;}
               <div class="mp-score-lbl" id="mpLblA">Du</div>
               <div class="mp-score-ctrl">
                 <button class="mp-score-btn" onclick="mpChgScore('a',-1)">−</button>
-                <div class="mp-score-num" id="mpScoreA">0</div>
+                <input type="number" id="mpScoreA" value="0" min="0" max="20" style="width:48px;text-align:center;font-size:24px;font-weight:700;border:1.5px solid #e0e0d8;border-radius:8px;padding:2px 4px;font-family:'DM Mono',monospace;" oninput="mpState.scoresA[mpState.curHole]=parseInt(this.value)||0;mpState.results[mpState.curHole]=mpCalcHoleResult(mpState.curHole);mpRecalcStatus();mpRenderHole();mpRenderGrid();mpUpdateStatusBar();"/>
                 <button class="mp-score-btn" onclick="mpChgScore('a',1)">+</button>
               </div>
             </div>
@@ -565,7 +546,7 @@ html,body{height:100%;background:#0d1f08;font-family:'DM Sans',sans-serif;}
               <div class="mp-score-lbl" id="mpLblB">Gegner</div>
               <div class="mp-score-ctrl">
                 <button class="mp-score-btn" onclick="mpChgScore('b',-1)">−</button>
-                <div class="mp-score-num" id="mpScoreB">0</div>
+                <input type="number" id="mpScoreB" value="0" min="0" max="20" style="width:48px;text-align:center;font-size:24px;font-weight:700;border:1.5px solid #e0e0d8;border-radius:8px;padding:2px 4px;font-family:'DM Mono',monospace;" oninput="mpState.scoresB[mpState.curHole]=parseInt(this.value)||0;mpState.results[mpState.curHole]=mpCalcHoleResult(mpState.curHole);mpRecalcStatus();mpRenderHole();mpRenderGrid();mpUpdateStatusBar();"/>
                 <button class="mp-score-btn" onclick="mpChgScore('b',1)">+</button>
               </div>
             </div>
@@ -1333,6 +1314,15 @@ window.undoShot = () => {
   renderShotList();
   render();
   updateHoleMap();
+  // Update green overlay if active
+  var ov = document.getElementById('greenMapOverlay');
+  if(ov && ov.style.display !== 'none') {
+    var img = document.getElementById('greenMapOverlayImg');
+    var tip = document.getElementById('greenOverlayTip');
+    if(img) img.src = 'Loch_' + (cur+1) + '_Greenkarte.png';
+    if(tip && GREEN_DATA && GREEN_DATA[cur]) tip.textContent = '💡 ' + GREEN_DATA[cur].tip;
+    overlayScale=1; overlayPanX=0; overlayPanY=0; overlayApplyTransform();
+  }
 };
 
 function renderShotList(){
@@ -1390,6 +1380,15 @@ window.go = function(dir){
   renderShotList();
   render();
   updateHoleMap();
+  // Update green overlay if active
+  var ov = document.getElementById('greenMapOverlay');
+  if(ov && ov.style.display !== 'none') {
+    var img = document.getElementById('greenMapOverlayImg');
+    var tip = document.getElementById('greenOverlayTip');
+    if(img) img.src = 'Loch_' + (cur+1) + '_Greenkarte.png';
+    if(tip && GREEN_DATA && GREEN_DATA[cur]) tip.textContent = '💡 ' + GREEN_DATA[cur].tip;
+    overlayScale=1; overlayPanX=0; overlayPanY=0; overlayApplyTransform();
+  }
   // Green-Mitte als Standard-Fahnenposition setzen
   setTimeout(function(){
     if(!holeMap) return;
@@ -1550,6 +1549,15 @@ window.resetRound = () => {
   renderShotList();
   render();
   updateHoleMap();
+  // Update green overlay if active
+  var ov = document.getElementById('greenMapOverlay');
+  if(ov && ov.style.display !== 'none') {
+    var img = document.getElementById('greenMapOverlayImg');
+    var tip = document.getElementById('greenOverlayTip');
+    if(img) img.src = 'Loch_' + (cur+1) + '_Greenkarte.png';
+    if(tip && GREEN_DATA && GREEN_DATA[cur]) tip.textContent = '💡 ' + GREEN_DATA[cur].tip;
+    overlayScale=1; overlayPanX=0; overlayPanY=0; overlayApplyTransform();
+  }
 };
 
 // ═══════════════════════════════════════════════════════════
@@ -1589,7 +1597,7 @@ let mpState = {
   active: false,
   nameA: 'Du', nameB: 'Gegner',
   hcpA: 24, hcpB: 24,
-  strokesA: 0, strokesB: 0, // vorgabe strokes given to each player
+  holeStrokes: new Array(18).fill('none'), // per hole: 'none','a','b'
   curHole: 0,  // 0-indexed
   scoresA: new Array(18).fill(0),
   scoresB: new Array(18).fill(0),
@@ -1621,41 +1629,41 @@ function mpInitTab() {
 }
 
 function mpCalcAutoStrokes() {
-  const diff = mpState.hcpA - mpState.hcpB;
-  // Lower HCP gives strokes to higher HCP
-  let sA = 0, sB = 0;
-  if(diff > 0) sB = Math.abs(diff); // B has lower hcp, A gets strokes... wait
-  // Actually: higher HCP receives strokes from lower HCP player
-  if(diff > 0) { sA = Math.abs(diff); sB = 0; } // A has higher HCP, A receives
-  else if(diff < 0) { sA = 0; sB = Math.abs(diff); }
-  // Cap at 18
-  sA = Math.min(sA, 18); sB = Math.min(sB, 18);
-  mpState.strokesA = sA;
-  mpState.strokesB = sB;
-  const elA = document.getElementById('mpStrokesA');
-  const elB = document.getElementById('mpStrokesB');
-  if(elA) elA.textContent = sA;
-  if(elB) elB.textContent = sB;
-  const info = document.getElementById('mpAutoStrokeInfo');
-  if(info) {
-    if(sA > 0) info.textContent = '→ ' + mpState.nameA + ' bekommt ' + sA + ' Vorgabeschläge (auto)';
-    else if(sB > 0) info.textContent = '→ ' + (mpState.nameB||'Gegner') + ' bekommt ' + sB + ' Vorgabeschläge (auto)';
-    else info.textContent = '→ Kein Vorgabeausgleich (gleiche HCP)';
+  // Build per-hole vorgabe grid in setup
+  const grid = document.getElementById('mpVorgabeGrid');
+  if(!grid) return;
+  grid.innerHTML = '';
+  for(let i = 0; i < 18; i++) {
+    const h = HOLES[i];
+    const val = mpState.holeStrokes[i] || 'none';
+    const cell = document.createElement('div');
+    cell.style.cssText = 'background:#f8f8f4;border-radius:8px;padding:6px;text-align:center;';
+    cell.innerHTML = '<div style="font-size:10px;color:#bbb;margin-bottom:3px;">L'+(i+1)+' · SI'+h.si+'</div>'
+      + '<div style="display:flex;gap:3px;justify-content:center;">'
+      + ['none','a','b'].map(v => {
+          const active = val===v;
+          const lbl = v==='none'?'–':v==='a'?'A':'B';
+          const bg = active?(v==='none'?'#e5e7eb':v==='a'?'#166534':'#991b1b'):'#fff';
+          const col = active&&v!=='none'?'#fff':active?'#333':'#888';
+          const border = active?'none':'1.5px solid #e0e0d8';
+          return '<button onclick="mpSetHoleStroke('+i+',''+v+'')" style="flex:1;padding:4px 2px;border-radius:6px;border:'+border+';background:'+bg+';color:'+col+';font-size:11px;font-weight:700;cursor:pointer;">'+lbl+'</button>';
+        }).join('')
+      + '</div>';
+    grid.appendChild(cell);
   }
 }
 
+window.mpSetHoleStroke = function(holeIdx, who) {
+  mpState.holeStrokes[holeIdx] = who;
+  mpCalcAutoStrokes(); // re-render grid
+};
+
 window.mpChgHcp = function(who, d) {
-  if(who==='a') { mpState.hcpA = Math.max(0, Math.min(54, mpState.hcpA+d)); document.getElementById('mpHcpA').textContent = mpState.hcpA; }
-  else { mpState.hcpB = Math.max(0, Math.min(54, mpState.hcpB+d)); document.getElementById('mpHcpB').textContent = mpState.hcpB; }
+  if(who==='a') { mpState.hcpA = Math.max(0, Math.min(54, mpState.hcpA+d)); document.getElementById('mpHcpA').value = mpState.hcpA; }
+  else { mpState.hcpB = Math.max(0, Math.min(54, mpState.hcpB+d)); document.getElementById('mpHcpB').value = mpState.hcpB; }
   mpCalcAutoStrokes();
 };
 
-window.mpChgStrokes = function(who, d) {
-  if(who==='a') { mpState.strokesA = Math.max(0, Math.min(18, mpState.strokesA+d)); document.getElementById('mpStrokesA').textContent = mpState.strokesA; }
-  else { mpState.strokesB = Math.max(0, Math.min(18, mpState.strokesB+d)); document.getElementById('mpStrokesB').textContent = mpState.strokesB; }
-  const info = document.getElementById('mpAutoStrokeInfo');
-  if(info) info.textContent = '✏️ Manuell überschrieben';
-};
 
 window.mpStart = function() {
   const nameB = document.getElementById('mpInputB').value.trim();
@@ -1671,12 +1679,9 @@ window.mpStart = function() {
   mpShowGame();
 };
 
-function mpGetNetScore(rawScore, holeIdx, strokes) {
-  // Strokes are distributed to lowest SI holes first
+function mpGetNetScore(rawScore, holeIdx, who) {
   if(rawScore === 0) return 0;
-  const si = HOLES[holeIdx].si;
-  // Player receives a stroke on this hole if strokes >= si
-  const bonus = strokes >= si ? 1 : 0;
+  const bonus = mpState.holeStrokes[holeIdx] === who ? 1 : 0;
   return rawScore - bonus;
 }
 
@@ -1684,8 +1689,8 @@ function mpCalcHoleResult(holeIdx) {
   const sA = mpState.scoresA[holeIdx];
   const sB = mpState.scoresB[holeIdx];
   if(sA === 0 || sB === 0) return null;
-  const netA = mpGetNetScore(sA, holeIdx, mpState.strokesA);
-  const netB = mpGetNetScore(sB, holeIdx, mpState.strokesB);
+  const netA = mpGetNetScore(sA, holeIdx, 'a');
+  const netB = mpGetNetScore(sB, holeIdx, 'b');
   if(netA < netB) return 'a';
   if(netB < netA) return 'b';
   return 'half';
@@ -1756,17 +1761,14 @@ function mpRenderHole() {
 
   // Vorgabe info for this hole
   const vEl = document.getElementById('mpVorgabeInfo');
-  const sA = mpState.strokesA >= h.si;
-  const sB = mpState.strokesB >= h.si;
-  if(sA || sB) {
-    vEl.style.display='block';
-    if(sA) vEl.textContent = '⛳ ' + mpState.nameA + ' bekommt +1 Vorgabeschlag auf diesem Loch';
-    if(sB) vEl.textContent = '⛳ ' + mpState.nameB + ' bekommt +1 Vorgabeschlag auf diesem Loch';
-  } else { vEl.style.display='none'; }
+  const hs = mpState.holeStrokes[i];
+  if(hs === 'a') { vEl.style.display='block'; vEl.textContent = '⛳ ' + mpState.nameA + ' bekommt +1 Vorgabeschlag'; }
+  else if(hs === 'b') { vEl.style.display='block'; vEl.textContent = '⛳ ' + mpState.nameB + ' bekommt +1 Vorgabeschlag'; }
+  else { vEl.style.display='none'; }
 
   // Scores
-  document.getElementById('mpScoreA').textContent = mpState.scoresA[i] || 0;
-  document.getElementById('mpScoreB').textContent = mpState.scoresB[i] || 0;
+  const saEl=document.getElementById('mpScoreA'); if(saEl) saEl.value=mpState.scoresA[i]||0;
+  const sbEl=document.getElementById('mpScoreB'); if(sbEl) sbEl.value=mpState.scoresB[i]||0;
 
   // Result banner
   const res = mpState.results[i];
@@ -1790,8 +1792,8 @@ function mpRenderHole() {
 
 window.mpChgScore = function(who, d) {
   const i = mpState.curHole;
-  if(who==='a') mpState.scoresA[i] = Math.max(0, (mpState.scoresA[i]||0)+d);
-  else mpState.scoresB[i] = Math.max(0, (mpState.scoresB[i]||0)+d);
+  if(who==='a') { mpState.scoresA[i] = Math.max(0, (mpState.scoresA[i]||0)+d); const el=document.getElementById('mpScoreA'); if(el) el.value=mpState.scoresA[i]; }
+  else { mpState.scoresB[i] = Math.max(0, (mpState.scoresB[i]||0)+d); const el=document.getElementById('mpScoreB'); if(el) el.value=mpState.scoresB[i]; }
   // Auto-calc result if both > 0
   mpState.results[i] = mpCalcHoleResult(i);
   mpRecalcStatus();
@@ -1832,7 +1834,7 @@ window.mpFinish = async function() {
         userName: mpState.nameA,
         opponent: mpState.nameB,
         hcpA: mpState.hcpA, hcpB: mpState.hcpB,
-        strokesA: mpState.strokesA, strokesB: mpState.strokesB,
+        holeStrokes: mpState.holeStrokes.join(','),
         holesWonA: mpState.upA, holesWonB: mpState.upB,
         result: resultStr,
         scoresA: scA, scoresB: scB,
@@ -1885,7 +1887,7 @@ function mpShowFinal() {
 
 window.mpReset = function() {
   mpState = {active:false,finished:false,nameA:mpState.nameA,nameB:'Gegner',
-    hcpA:mpState.hcpA,hcpB:24,strokesA:0,strokesB:0,curHole:0,
+    hcpA:mpState.hcpA,hcpB:24,holeStrokes:new Array(18).fill('none'),curHole:0,
     scoresA:new Array(18).fill(0),scoresB:new Array(18).fill(0),
     results:new Array(18).fill(null),upA:0,upB:0,finishHole:-1};
   document.getElementById('mpInputB').value='';
