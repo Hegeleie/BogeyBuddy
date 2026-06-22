@@ -1597,7 +1597,7 @@ let mpState = {
   active: false,
   nameA: 'Du', nameB: 'Gegner',
   hcpA: 24, hcpB: 24,
-  holeStrokes: new Array(18).fill('none'), // per hole: 'none','a','b'
+  holeStrokes: Array.from({length:18}, function(){return {who:'none',n:0};}), // per hole: {who:'none'|'a'|'b', n:0..5}
   curHole: 0,  // 0-indexed
   scoresA: new Array(18).fill(0),
   scoresB: new Array(18).fill(0),
@@ -1629,33 +1629,54 @@ function mpInitTab() {
 }
 
 function mpCalcAutoStrokes() {
-  // Build per-hole vorgabe grid in setup
   const grid = document.getElementById('mpVorgabeGrid');
   if(!grid) return;
   grid.innerHTML = '';
   for(let i = 0; i < 18; i++) {
     const h = HOLES[i];
-    const val = mpState.holeStrokes[i] || 'none';
+    const hs = mpState.holeStrokes[i];
+    const who = hs.who, n = hs.n || 0;
     const cell = document.createElement('div');
-    cell.style.cssText = 'background:#f8f8f4;border-radius:8px;padding:6px;text-align:center;';
-    cell.innerHTML = '<div style="font-size:10px;color:#bbb;margin-bottom:3px;">L'+(i+1)+' · SI'+h.si+'</div>'
-      + '<div style="display:flex;gap:3px;justify-content:center;">'
-      + ['none','a','b'].map(v => {
-          const active = val===v;
-          const lbl = v==='none'?'–':v==='a'?'A':'B';
-          const bg = active?(v==='none'?'#e5e7eb':v==='a'?'#166534':'#991b1b'):'#fff';
-          const col = active&&v!=='none'?'#fff':active?'#333':'#888';
-          const border = active?'none':'1.5px solid #e0e0d8';
-          return '<button onclick="mpSetHoleStroke(' + i + ', \"' + v + '\")" style="flex:1;padding:4px 2px;border-radius:6px;border:' + border + ';background:' + bg + ';color:' + col + ';font-size:11px;font-weight:700;cursor:pointer;">' + lbl + '</button>';
-        }).join('')
+    cell.style.cssText = 'background:#f8f8f4;border-radius:8px;padding:6px 4px;text-align:center;';
+    // Header
+    let html = '<div style="font-size:10px;color:#bbb;margin-bottom:4px;font-weight:600;">L'+(i+1)+' <span style="font-weight:400">SI'+h.si+'</span></div>';
+    // A / – / B toggle
+    html += '<div style="display:flex;gap:2px;margin-bottom:4px;">';
+    ['a','none','b'].forEach(function(v) {
+      const active = who===v;
+      const lbl = v==='a'?'A':v==='none'?'–':'B';
+      const bg = active ? (v==='a'?'#166534':v==='b'?'#991b1b':'#4b5563') : '#fff';
+      const col = active ? '#fff' : '#888';
+      const brd = active ? 'none' : '1.5px solid #e0e0d8';
+      html += '<button onclick="mpSetHoleWho(' + i + ',\"' + v + '\")" style="flex:1;padding:4px 1px;border-radius:5px;border:' + brd + ';background:' + bg + ';color:' + col + ';font-size:12px;font-weight:700;cursor:pointer;">' + lbl + '</button>';
+    });
+    html += '</div>';
+    // Stroke count – always visible, greyed out when 'none'
+    const numBg = who==='none' ? '#f0f0ea' : '#fff';
+    const numCol = who==='none' ? '#ccc' : '#1a1a1a';
+    html += '<div style="display:flex;align-items:center;gap:2px;justify-content:center;">'
+      + '<button onclick="mpChgN(' + i + ',-1)" style="width:20px;height:20px;border-radius:50%;border:1px solid #e0e0d8;background:' + numBg + ';color:' + numCol + ';font-size:13px;cursor:pointer;line-height:1;padding:0;">−</button>'
+      + '<input type="number" id="mpN_' + i + '" value="' + n + '" min="0" max="9" oninput="mpState.holeStrokes[' + i + '].n=Math.max(0,parseInt(this.value)||0);mpCalcAutoStrokes();" style="width:28px;text-align:center;font-size:13px;font-weight:700;border:1px solid #e0e0d8;border-radius:5px;padding:1px 0;background:' + numBg + ';color:' + numCol + ';">'
+      + '<button onclick="mpChgN(' + i + ',1)" style="width:20px;height:20px;border-radius:50%;border:1px solid #e0e0d8;background:' + numBg + ';color:' + numCol + ';font-size:13px;cursor:pointer;line-height:1;padding:0;">+</button>'
       + '</div>';
+    cell.innerHTML = html;
     grid.appendChild(cell);
   }
 }
 
-window.mpSetHoleStroke = function(holeIdx, who) {
-  mpState.holeStrokes[holeIdx] = who;
-  mpCalcAutoStrokes(); // re-render grid
+window.mpSetHoleWho = function(holeIdx, who) {
+  mpState.holeStrokes[holeIdx].who = who;
+  if(who === 'none') mpState.holeStrokes[holeIdx].n = 0;
+  else if(mpState.holeStrokes[holeIdx].n === 0) mpState.holeStrokes[holeIdx].n = 1;
+  mpCalcAutoStrokes();
+};
+
+window.mpChgN = function(holeIdx, d) {
+  const hs = mpState.holeStrokes[holeIdx];
+  hs.n = Math.max(0, Math.min(9, (hs.n||0) + d));
+  if(hs.n > 0 && hs.who === 'none') hs.who = 'a';
+  if(hs.n === 0) hs.who = 'none';
+  mpCalcAutoStrokes();
 };
 
 window.mpChgHcp = function(who, d) {
@@ -1681,7 +1702,8 @@ window.mpStart = function() {
 
 function mpGetNetScore(rawScore, holeIdx, who) {
   if(rawScore === 0) return 0;
-  const bonus = mpState.holeStrokes[holeIdx] === who ? 1 : 0;
+  const hs = mpState.holeStrokes[holeIdx];
+  const bonus = (hs.who === who) ? (hs.n || 0) : 0;
   return rawScore - bonus;
 }
 
@@ -1762,8 +1784,8 @@ function mpRenderHole() {
   // Vorgabe info for this hole
   const vEl = document.getElementById('mpVorgabeInfo');
   const hs = mpState.holeStrokes[i];
-  if(hs === 'a') { vEl.style.display='block'; vEl.textContent = '⛳ ' + mpState.nameA + ' bekommt +1 Vorgabeschlag'; }
-  else if(hs === 'b') { vEl.style.display='block'; vEl.textContent = '⛳ ' + mpState.nameB + ' bekommt +1 Vorgabeschlag'; }
+  if(hs.who === 'a' && hs.n > 0) { vEl.style.display='block'; vEl.textContent = '⛳ ' + mpState.nameA + ' bekommt +' + hs.n + ' Vorgabeschlag' + (hs.n>1?'e':''); }
+  else if(hs.who === 'b' && hs.n > 0) { vEl.style.display='block'; vEl.textContent = '⛳ ' + mpState.nameB + ' bekommt +' + hs.n + ' Vorgabeschlag' + (hs.n>1?'e':''); }
   else { vEl.style.display='none'; }
 
   // Scores
@@ -1834,7 +1856,7 @@ window.mpFinish = async function() {
         userName: mpState.nameA,
         opponent: mpState.nameB,
         hcpA: mpState.hcpA, hcpB: mpState.hcpB,
-        holeStrokes: mpState.holeStrokes.join(','),
+        holeStrokes: mpState.holeStrokes.map(function(h){return h.who+':'+h.n;}).join(','),
         holesWonA: mpState.upA, holesWonB: mpState.upB,
         result: resultStr,
         scoresA: scA, scoresB: scB,
@@ -1887,7 +1909,7 @@ function mpShowFinal() {
 
 window.mpReset = function() {
   mpState = {active:false,finished:false,nameA:mpState.nameA,nameB:'Gegner',
-    hcpA:mpState.hcpA,hcpB:24,holeStrokes:new Array(18).fill('none'),curHole:0,
+    hcpA:mpState.hcpA,hcpB:24,holeStrokes:Array.from({length:18},function(){return {who:'none',n:0};}),curHole:0,
     scoresA:new Array(18).fill(0),scoresB:new Array(18).fill(0),
     results:new Array(18).fill(null),upA:0,upB:0,finishHole:-1};
   document.getElementById('mpInputB').value='';
