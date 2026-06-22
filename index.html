@@ -1646,7 +1646,7 @@ function mpCalcAutoStrokes() {
           const bg = active?(v==='none'?'#e5e7eb':v==='a'?'#166534':'#991b1b'):'#fff';
           const col = active&&v!=='none'?'#fff':active?'#333':'#888';
           const border = active?'none':'1.5px solid #e0e0d8';
-          return '<button onclick="mpSetHoleStroke('+i+',''+v+'')" style="flex:1;padding:4px 2px;border-radius:6px;border:'+border+';background:'+bg+';color:'+col+';font-size:11px;font-weight:700;cursor:pointer;">'+lbl+'</button>';
+          return '<button onclick="mpSetHoleStroke(' + i + ', \"' + v + '\")" style="flex:1;padding:4px 2px;border-radius:6px;border:' + border + ';background:' + bg + ';color:' + col + ';font-size:11px;font-weight:700;cursor:pointer;">' + lbl + '</button>';
         }).join('')
       + '</div>';
     grid.appendChild(cell);
