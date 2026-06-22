@@ -973,19 +973,22 @@ async function loadFeed() {
 
   // Also load matches
   let allMatches = [];
+  let matchesLoadError = null;
   try {
     for(const uid of uids.slice(0,5)) {
       const mq = db.collection('matches').where('userId','==',uid).orderBy('createdAt','desc').limit(3);
       const msnap = await mq.get();
       msnap.docs.forEach(d=>allMatches.push({id:d.id,...d.data(),_type:'match'}));
     }
-  } catch(e) { console.warn('Matches feed:', e); }
+  } catch(e) { console.error('Matches feed:', e); matchesLoadError = e; }
 
   // Merge and sort
   const allItems = [...allRounds.map(r=>({...r,_type:'round'})),...allMatches];
   allItems.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
 
-  if(!allItems.length){feed.innerHTML='<div style="text-align:center;color:#bbb;padding:20px;font-size:13px;">Noch keine Runden</div>';return;}
+  const errBanner = matchesLoadError ? '<div style="background:#fef2f2;color:#991b1b;border-radius:8px;padding:8px 10px;font-size:11px;margin-bottom:8px;">⚠️ Matches konnten nicht geladen werden: ' + (matchesLoadError.code||'') + ' – ' + (matchesLoadError.message||matchesLoadError) + '</div>' : '';
+
+  if(!allItems.length){feed.innerHTML=errBanner+'<div style="text-align:center;color:#bbb;padding:20px;font-size:13px;">Noch keine Runden</div>';return;}
 
   feed.innerHTML = allItems.slice(0,12).map((r,idx)=>{
     const isMe = r.userId===currentUser.uid;
@@ -1018,6 +1021,7 @@ async function loadFeed() {
       <div class="r-more" onclick="document.getElementById('fd${idx}').classList.toggle('open')">Details ▾</div>
     </div>`;
   }).join('');
+  feed.innerHTML = errBanner + feed.innerHTML;
 }
 
 window.deleteRound = async (id) => {
@@ -1865,7 +1869,12 @@ window.mpFinish = async function() {
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         type: 'match'
       });
-    } catch(e) { console.warn('Match save error:', e); }
+      // Feed sofort aktualisieren, damit das Match direkt im Freunde-Tab sichtbar ist
+      try { await loadSocialData(); } catch(e2) { console.warn('Feed refresh after match save:', e2); }
+    } catch(e) {
+      console.error('Match save error:', e);
+      alert('⚠️ Match konnte nicht gespeichert werden:\n\n' + e.code + ' – ' + e.message + '\n\nPrüfe die Firestore Security Rules für die Collection "matches" (vermutlich fehlt dort eine Regel, die "rounds" aber schon hat).');
+    }
   }
   mpShowFinal();
 };
