@@ -1068,6 +1068,7 @@ async function loadFeed() {
         return `<span style="display:inline-block;width:18px;height:18px;background:${bg};border-radius:3px;font-size:9px;color:#fff;text-align:center;line-height:18px;margin:1px;">${i+1}</span>`;
       }).join('');
       return `<div class="round-card" style="border-left:3px solid #4a9a2a;">
+        ${isMe?`<button class="del-btn" onclick="deleteMatch('${r.id}')">×</button>`:''}
         <div class="r-user">⚔️ Matchplay · ${isMe?'Du':r.userName} vs ${r.opponent}</div>
         <div class="r-date">${r.date||''} · HCP ${r.hcpA}/${r.hcpB}</div>
         <div style="font-size:15px;font-weight:700;margin:4px 0;">${r.result||'—'}</div>
@@ -1097,6 +1098,14 @@ window.deleteRound = async (id) => {
     await db.collection('rounds').doc(id).delete();
   loadFeed();
   loadLeaderboard();
+};
+
+window.deleteMatch = async (id) => {
+  if(!confirm('Match löschen?')) return;
+  try {
+    await db.collection('matches').doc(id).delete();
+    loadFeed();
+  } catch(e) { alert('Fehler beim Löschen: '+e.message); }
 };
 
 // ═══════════════════════════════════════════════════════════
@@ -1652,12 +1661,14 @@ window.resetRound = () => {
 window.deleteAccount = async () => {
   if(!currentUser) return;
   if(!confirm('Konto und ALLE Daten dauerhaft löschen? Dies kann nicht rückgängig gemacht werden.')) return;
-  if(!confirm('Bist du wirklich sicher? Alle Runden, Freunde und dein Profil werden gelöscht.')) return;
+  if(!confirm('Bist du wirklich sicher? Alle Runden, Matches, Freunde und dein Profil werden gelöscht.')) return;
   try {
     // Alle Runden löschen
-    const roundsQ = query(db.collection('rounds'), where('userId','==',currentUser.uid));
     const roundsSnap = await db.collection('rounds').where('userId','==',currentUser.uid).get();
     await Promise.all(roundsSnap.docs.map(d => d.ref.delete()));
+    // Alle Matches löschen
+    const matchesSnap = await db.collection('matches').where('userId','==',currentUser.uid).get();
+    await Promise.all(matchesSnap.docs.map(d => d.ref.delete()));
     await db.collection('users').doc(currentUser.uid).delete();
     await currentUser.delete();
     alert('Konto wurde vollständig gelöscht.');
