@@ -801,6 +801,7 @@ let myPos=null, flagMarker=null, myMarker=null;
 let gpsMap=null, gpsLayer=null, gpsMapInited=false;
 let holeMap=null, holeLayer=null, holeMapInited=false;
 let distRings=[], greenMarkers=[], fairwayPolygons=[], teeMarkers=[], shotMapMarkers=[];
+let obstacleMarkers=[]; // {marker, obs} – für Live-GPS-Distanzupdate
 let osmData={greens:[],tees:[],fairways:[]}, osmLoaded=false;
 let shots=Array.from({length:18},function(){return [];}); // [{lat,lon,dist}]
 let currentUser=null, userProfile=null;
@@ -1156,7 +1157,7 @@ function initHoleMap() {
 function updateHoleMap() {
   if(!holeMap) return;
   [...greenMarkers,...fairwayPolygons,...teeMarkers,...distRings,...shotMapMarkers].forEach(m=>holeMap.removeLayer(m));
-  greenMarkers=[];fairwayPolygons=[];teeMarkers=[];distRings=[];shotMapMarkers=[];
+  greenMarkers=[];fairwayPolygons=[];teeMarkers=[];distRings=[];shotMapMarkers=[];obstacleMarkers=[];
 
   const green = GREEN_COORDS[cur];
   if(osmLoaded && osmData.greens.length) {
@@ -1194,6 +1195,7 @@ function updateHoleMap() {
       interactive:false
     }).addTo(holeMap);
     greenMarkers.push(lbl);
+    obstacleMarkers.push({marker:lbl, obs:o});
   });
 
   // Abschlag-Marker für aktuelle Farbe einzeichnen
@@ -1231,6 +1233,19 @@ function updateHoleMap() {
 
   holeMap.setView(green,17);
   updateAutoDistance();
+}
+
+function updateObstacleDistances(){
+  if(!myPos || !holeMap || obstacleMarkers.length===0) return;
+  obstacleMarkers.forEach(function(item){
+    var obs=item.obs, marker=item.marker;
+    var icon = obs.t==='bunker'?'🟨':obs.t==='water'?'🟦':'🌳';
+    var d = haversine(myPos[0],myPos[1],obs.lat,obs.lon);
+    marker.setIcon(L.divIcon({
+      html:'<div style="background:rgba(0,0,0,0.65);color:#fff;font-size:10px;font-weight:700;padding:3px 6px;border-radius:6px;white-space:nowrap;display:flex;align-items:center;gap:3px;backdrop-filter:blur(2px)">'+icon+' <span style="color:#fff">'+d+'m</span></div>',
+      className:'',iconAnchor:[30,10]
+    }));
+  });
 }
 
 window.setHoleLayer = (t)=>{
@@ -2118,7 +2133,7 @@ if(navigator.geolocation){
     document.getElementById('gpsTxt').textContent='Aktiv';
     updateAutoDistance();
     // Nur GPS-Punkt aktualisieren ohne Karte neu zu zentrieren
-    if(holeMapInited) updateMyPositionMarker();
+    if(holeMapInited) { updateMyPositionMarker(); updateObstacleDistances(); }
   },()=>{},{enableHighAccuracy:true,maximumAge:0,timeout:10000});
 }
 
