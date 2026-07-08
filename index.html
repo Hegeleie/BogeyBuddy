@@ -994,13 +994,16 @@ async function loadLeaderboard() {
     const r=d.data();
     const rankCls = i<3?ranks[i]:'';
     const dT = r.totalBrutto-72;
+    const scArrLb=r.scores?Array.from({length:18},(_,i)=>(r.scores['h'+(i+1)])||0):[];
+    const hcpLb=r.hcp!=null?r.hcp:54;
+    const stabLb=scArrLb.length?scArrLb.reduce((s,v,i)=>s+stableford(v,i,hcpLb),0):r.totalStab;
     return `<div class="lb-card">
       <div class="lb-rank ${rankCls}">${i+1}</div>
       <div class="lb-info">
         <div class="lb-name">${r.userName||'Unbekannt'}</div>
         <div class="lb-meta">${r.date||''} · ${r.totalBrutto} Brutto · ${dT>=0?'+':''}${dT}</div>
       </div>
-      <div class="lb-pts">${r.totalStab}</div>
+      <div class="lb-pts">${stabLb}</div>
     </div>`;
   }).join('');
 }
@@ -1084,12 +1087,15 @@ async function loadFeed() {
     }
     const dT=r.totalBrutto-72;
     const scArr=Array.isArray(r.scores)?r.scores:Array.from({length:18},(_,i)=>(r.scores&&r.scores['h'+(i+1)])||0);
+    // Stableford immer live neu berechnen (korrigiert auch alte gespeicherte Runden)
+    const hcpR=r.hcp!=null?r.hcp:54;
+    const recalcStab=scArr.reduce((sum,s,i)=>sum+stableford(s,i,hcpR),0);
     const spans=scArr.map((s,i)=>{const d=s-(HOLES[i]?.par||4);const c=d<=-2?'eagle':d===-1?'birdie':d===1?'bogey':d>=2?'dbl':'';return`<span class="${c}" style="display:inline-block;min-width:22px;text-align:center;margin:1px;font-size:11px;border-radius:3px;padding:1px 2px">${s||'·'}</span>`;}).join('');
     return`<div class="round-card">
       ${isMe?`<button class="del-btn" onclick="deleteRound('${r.id}')">×</button>`:''}
       <div class="r-user">${isMe?'Du':r.userName}</div>
       <div class="r-date">${r.date||''} · HCP ${r.hcp||'—'} · ${r.tee||'Gelb'}</div>
-      <div class="r-scores"><span class="r-brutto">${r.totalBrutto}</span><span class="r-stab">${r.totalStab} Pkt</span><span class="r-diff">${r.totalBrutto?(dT>=0?'+':'')+dT+' zum Par':''}</span></div>
+      <div class="r-scores"><span class="r-brutto">${r.totalBrutto}</span><span class="r-stab">${recalcStab} Pkt</span><span class="r-diff">${r.totalBrutto?(dT>=0?'+':'')+dT+' zum Par':''}</span></div>
       <div class="r-played">${r.played||0} von 18 Löchern</div>
       <div class="r-detail" id="fd${idx}">${spans}</div>
       <div class="r-more" onclick="document.getElementById('fd${idx}').classList.toggle('open')">Details ▾</div>
@@ -1569,7 +1575,9 @@ function render(){
     for(let i=0;i<18;i++){const d=document.createElement('div');d.className='hdot'+(i===cur?' cur':(scores[i]>0?' done':''));d.onclick=(function(idx){return function(){cur=idx;window.go(0);};})(i);el.appendChild(d);}
   });
 
-  const tB=scores.reduce((a,b)=>a+b,0),tS=scores.reduce((s,b,i)=>s+stableford(b,i,hcp),0),dT=tB-72;
+  const tB=scores.reduce((a,b)=>a+b,0),tS=scores.reduce((s,b,i)=>s+stableford(b,i,hcp),0);
+  const playedPar=HOLES.reduce((a,h,i)=>scores[i]>0?a+h.par:a,0);
+  const dT=tB-playedPar;
   document.getElementById('totB').textContent=tB;
   document.getElementById('totBs').textContent=tB===0?'von Par 72':(dT>=0?'+':'')+dT+' zum Par';
   document.getElementById('totS').textContent=tS;
@@ -1592,7 +1600,9 @@ function renderCard(hcp){
     const ninePar=HOLES.slice(nine*9,nine*9+9).reduce((a,h)=>a+h.par,0);
     el.innerHTML+=`<tr class="sum-row"><td>${nine===0?'∑ 1–9':'∑ 10–18'}</td><td>${ninePar}</td><td></td><td>${(nine===0?fB:bB)||'—'}</td><td></td><td>${nine===0?fS:bS}</td></tr>`;
   });
-  const tB=fB+bB,tS=fS+bS,dT=tB-72,played=scores.filter(s=>s>0).length;
+  const tB=fB+bB,tS=fS+bS,played=scores.filter(s=>s>0).length;
+  const cardPlayedPar=HOLES.reduce((a,h,i)=>scores[i]>0?a+h.par:a,0);
+  const dT=tB-cardPlayedPar;
   document.getElementById('sumGrid').innerHTML=`
     <div class="sum-card"><div class="sum-l">Brutto</div><div class="sum-v">${tB||0}</div><div class="sum-s">${tB?(dT>=0?'+':'')+dT+' zum Par':'Noch keine Schläge'}</div></div>
     <div class="sum-card"><div class="sum-l">Stableford</div><div class="sum-v">${tS}</div><div class="sum-s">Punkte · HCP ${hcp}</div></div>
