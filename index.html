@@ -160,6 +160,7 @@ html,body{height:100%;background:#0d1f08;font-family:'DM Sans',sans-serif;}
 .sc-tbl td{padding:4px 2px;text-align:center;border-bottom:1px solid #f5f5f0;color:#333;}
 .sc-tbl td:first-child{text-align:left;color:#bbb;font-size:10px;}
 .sc-tbl tr.sum-row td{font-weight:700;color:#1a1a1a;border-top:1.5px solid #ddd;border-bottom:none;padding-top:6px;}
+.albatross{background:#1a237e;color:#fff;border-radius:3px;padding:1px 4px;font-weight:700;}
 .eagle{background:#4CAF50;color:#fff;border-radius:3px;padding:1px 4px;font-weight:700;}
 .birdie{background:#c8e6a0;color:#1e4d0a;border-radius:3px;padding:1px 4px;font-weight:700;}
 .bogey{background:#fce8e8;color:#c0392b;border-radius:3px;padding:1px 4px;}
@@ -1090,7 +1091,7 @@ async function loadFeed() {
     // Stableford immer live neu berechnen (korrigiert auch alte gespeicherte Runden)
     const hcpR=r.hcp!=null?r.hcp:54;
     const recalcStab=scArr.reduce((sum,s,i)=>sum+stableford(s,i,hcpR),0);
-    const spans=scArr.map((s,i)=>{const d=s-(HOLES[i]?.par||4);const c=d<=-2?'eagle':d===-1?'birdie':d===1?'bogey':d>=2?'dbl':'';return`<span class="${c}" style="display:inline-block;min-width:22px;text-align:center;margin:1px;font-size:11px;border-radius:3px;padding:1px 2px">${s||'·'}</span>`;}).join('');
+    const spans=scArr.map((s,i)=>{const d=s-(HOLES[i]?.par||4);const c=d<=-3?'albatross':d===-2?'eagle':d===-1?'birdie':d===1?'bogey':d>=2?'dbl':'';return`<span class="${c}" style="display:inline-block;min-width:22px;text-align:center;margin:1px;font-size:11px;border-radius:3px;padding:1px 2px">${s||'·'}</span>`;}).join('');
     return`<div class="round-card">
       ${isMe?`<button class="del-btn" onclick="deleteRound('${r.id}')">×</button>`:''}
       <div class="r-user">${isMe?'Du':r.userName}</div>
@@ -1562,7 +1563,8 @@ function render(){
 
   const ss=document.getElementById('scS'),sv=document.getElementById('stbV');
   if(s===0){ss.textContent='Kein Schlag';ss.className='sb-s c-gray';sv.textContent='—';}
-  else if(diff<=-2){ss.textContent='Eagle! ('+diff+')';ss.className='sb-s c-green';}
+  else if(diff<=-3){ss.textContent='Albatross!! ('+diff+')';ss.className='sb-s c-green';}
+  else if(diff===-2){ss.textContent='Eagle! (−2)';ss.className='sb-s c-green';}
   else if(diff===-1){ss.textContent='Birdie (−1)';ss.className='sb-s c-green';}
   else if(diff===0){ss.textContent='Par ✓';ss.className='sb-s c-gray';}
   else if(diff===1){ss.textContent='Bogey (+1)';ss.className='sb-s c-red';}
@@ -1592,7 +1594,7 @@ function renderCard(hcp){
       const h=HOLES[i],s=scores[i],ex=extraShots(i,hcp);
       const netto=s>0?s-ex:0,st=stableford(s,i,hcp),d=s-h.par;
       let cls='';
-      if(s>0){if(d<=-2)cls='eagle';else if(d===-1)cls='birdie';else if(d===1)cls='bogey';else if(d>=2)cls='dbl';}
+      if(s>0){if(d<=-3)cls='albatross';else if(d===-2)cls='eagle';else if(d===-1)cls='birdie';else if(d===1)cls='bogey';else if(d>=2)cls='dbl';}
       if(i===cur)cls='cur-c';
       el.innerHTML+=`<tr><td>${i+1}</td><td>${h.par}</td><td style="color:#ccc">${h.si}</td><td><span class="${cls}">${s||'—'}</span></td><td>${s>0?netto:'—'}</td><td style="font-weight:700;color:${st>=3?'#1e6b0a':st===1?'#854F0B':st===0&&s>0?'#c0392b':'#333'}">${s>0?st:'—'}</td></tr>`;
       if(nine===0){fB+=s;fS+=st;}else{bB+=s;bS+=st;}
